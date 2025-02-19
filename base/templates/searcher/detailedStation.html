@@ -1,0 +1,34 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+        <link rel="stylesheet" href = {% static 'content/style_detailedStation.css' %}>
+        <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1/turf.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <div class = "detailedStation-grid-container">
+            <div id = "site_select">
+                <p>Please select a site:</p>
+                {% for site in sites %}
+                    <div class = "site-option">
+                        <input class = "site_radio" type="radio" id="site_{{site.name}}_{{site.site_id}}_{{site.source.name}}" name="site2avg" value="{{site.name}}_{{site.site_id}}_{{site.source.name}}">
+                        <label for="site_{{site.name}}_{{ site.site_id }}_{{site.source.name}}">{{site.name}}</label><br>
+                        <div id="pedons_of_{{site.name}}_{{ site.site_id }}_{{site.source.name}}" class="pedon-options" style="display: none; margin-left: 20px;">
+                            <!-- Pedons will be dynamically inserted here -->
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div id = "graph">
+                <canvas id="soilLayerDataLine"></canvas>
+            </div>
+        </div>
+        <script>
+            const spUrl = "{% url 'base:ajax_spline_line' %}";
+            const pdUrl = "{% url 'base:get_pedons' %}";
+        </script>
+        <script src = {% static "scripts/graph_handling.js" %}></script>
+    </body>
+</html>

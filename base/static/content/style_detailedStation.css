@@ -1,0 +1,14 @@
+.detailedStation-grid-container {
+    /*This contains the layout of the app*/
+    display: grid;
+    /*This line divides the page into 2 + 1 + 1 = 4 equal parts*/
+    grid-template-columns: [siteselect-start] 1fr [siteselect-end graph-start] 2fr [graph-end];
+}
+#site_select {
+    grid-column: siteselect;
+    overflow-y: auto;
+    height: 80vh;
+}
+#graph {
+    grid-column: graph;
+}

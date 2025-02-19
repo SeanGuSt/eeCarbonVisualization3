@@ -1,0 +1,49 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+.leaflet-container {
+    margin: auto;
+    height: 80%;
+    width: 100%;
+    max-width: 80%;
+    max-height: 100%;
+}
+.stationFinder-grid-container {
+    /*This contains the layout of the app*/
+    display: grid;
+    /*This line divides the page into 1 + 1 + 1 + 5 + 1 = 9 equal parts, with two main sections; input and data*/
+    grid-template-rows: [map-start] 1fr [map-end];
+    /*This line divides the page into 3 + 4 = 7 equal parts,*/
+    /*grid-template-columns: [sitestation-start] 3fr [sitestation-end ccc-start]  4fr [ccc-end];*/
+    
+}
+.map{
+    grid-row: map;
+    margin-bottom: auto;
+    height: 100%;
+}
+.graphViewer-grid-variables {
+    grid-row: variables;
+    grid-column: biggraph;
+    margin-bottom: auto;
+    overflow: auto;
+    white-space: nowrap;
+}
+.graphButton .hovertext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+    .graphButton:hover .hovertext {
+        visibility: visible;
+    }
