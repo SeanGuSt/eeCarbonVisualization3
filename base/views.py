@@ -10,7 +10,7 @@ from scipy.interpolate import CubicSpline
 import numpy as np
 import pandas as pd
 import ast
-from .constant import LAT, LONG, LAT_LONG_NAME, PEDON_NAM, SITE_NAM, TOP, BOTTOM, SOC, LAYER_NAM, SITE_ID, PEDON_ID
+from .constant import PEDON_NAM, SITE_NAM, TOP, BOTTOM, SOC, LAYER_NAM, SITE_ID, PEDON_ID
 already_loaded = []
 #footer_keys are the keys to the dictionary superDict
 summary_keys = list(Standard.objects.filter(summary = True).values_list("name", flat = True))
@@ -41,61 +41,143 @@ class DetailedView(generic.TemplateView):
 
 
 def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
-    global df, df_xl
-    df = pd.DataFrame(columns = summary_keys)
+    """
+    Appends new data to the global dataframe (`df`) for sites not previously loaded. 
+    If the data source type is 'XL', it will be appended to a separate dataframe (`df_xl`). 
+    The function checks for already loaded sources to avoid redundant loading and fetches data for new sources. 
+    It returns the list of sites that were processed during this operation.
+
+    Args:
+        request (HttpRequest): The HTTP request containing the site data to be processed.
+
+    Returns:
+        QuerySet[Site]: A queryset of the sites that were processed.
+    """
+    
+    global df, df_xl  # Declare global variables for the dataframes that store the data.
+
+    # Initialize a new empty DataFrame `df` with predefined column names from `summary_keys`.
+    df = pd.DataFrame(columns=summary_keys)
+
+    # Get the list of sites related to the request.
     reqSites = get_sites_in_place(request)
+
+    # Initialize a list to track sources that have already been loaded (temporary for this request).
     temp_already_loaded = []
+
+    # Check if there are sites to process.
     if reqSites:
+        # Iterate over each site in the request's sites.
         for site in reqSites:
-            source = site.source
-            if source not in already_loaded and source.type == "XL":#If the source has already been loaded, there's no point loading it again.
+            source = site.source  # Extract the source of the site.
+
+            # Check if the source hasn't been loaded yet and its type is "XL".
+            if source not in already_loaded and source.type == "XL":
+                # Mark this source as loaded.
                 already_loaded.append(source)
-                dfNew = fetch_data(source, exclude = [LAT_LONG_NAME, LAT, LONG])
+                # Fetch new data for this source and add the source name.
+                dfNew = fetch_data(source)
                 dfNew["Source"] = source.name
+                # Concatenate the new data to the `df_xl` dataframe (which stores XL sources).
                 df_xl = pd.concat([df_xl, dfNew])
+
+            # If the source is not of type "XL" and hasn't been processed in this request.
             elif source not in temp_already_loaded and source.type != "XL":
+                # Mark this source as loaded in the temporary list.
                 temp_already_loaded.append(source)
-                dfNew = fetch_data(source, exclude = [LAT_LONG_NAME, LAT, LONG], where = reqSites)#We don't display these three vars
+                # Fetch new data for this source, limiting it to the relevant sites.
+                dfNew = fetch_data(source, where=reqSites)
                 dfNew["Source"] = source.name
-                df = pd.concat([df, dfNew])#Append this to the existing df     
+                # Append this data to the main `df` dataframe.
+                df = pd.concat([df, dfNew.dropna(axis=1, how='all')])
+
+        # If there is data in `df_xl`, filter and append relevant data to `df`.
         if not df_xl.empty:
-            df = pd.concat([df, df_xl[df_xl[SITE_NAM].isin(list(reqSites.values_list("name", flat = True)))]])
+            df = pd.concat([df, df_xl[df_xl[SITE_NAM].isin(list(reqSites.values_list("name", flat=True)))]])
+        
+        # Clean the dataframe by inferring object types and filling missing values with -1.
         df = df.infer_objects(copy=False).fillna(-1)
+
+    # Return the queryset of sites that were processed.
     return reqSites
 
 
+
 def get_sites_in_place(request: HttpRequest) -> QuerySet[Site]:
-    #Returns a BaseManager of Sites dependent on the type (state, county, or individual station) requested,
-    #and the name (the string desired).
+    """
+    Returns a queryset of `Site` objects filtered by the type and name specified in the request.
+    The function can filter by state, county, or individual station depending on the request parameters.
+    If the type and name parameters do not match expected values, it returns an empty queryset.
+
+    Args:
+        request (HttpRequest): The HTTP request containing parameters for filtering sites.
+
+    Returns:
+        QuerySet[Site]: A queryset of `Site` objects that match the filter criteria.
+    """
+    
+    # Extract the 'type' (state, county, or individual station) and 'name' from the request parameters.
     place_type = request.GET.get("type")
     place_name = request.GET.get("name")
+
+    # Match the place type and filter the sites accordingly.
     match place_type:
         case "State":
-            return Site.objects.filter(state = place_name).distinct()
+            # Filter by state name (distinct values to avoid duplicates).
+            return Site.objects.filter(state=place_name).distinct()
+        
         case "County":
+            # Split the place name into county and state, then filter by both.
             county_state = place_name.split(", ")
-            return Site.objects.filter(county = county_state[0], state = county_state[1]).distinct()
+            return Site.objects.filter(county=county_state[0], state=county_state[1]).distinct()
+        
         case "Individual Station":
+            # Extract additional identifiers for individual station filtering.
             site_id = request.GET.get("site_id")
             site_source = request.GET.get("site_source")
-            return Site.objects.filter(name = place_name, site_id = site_id, source__name = site_source)
-    #If place_type doesn't match anything, return and empty QuerySet
+            # Filter by name, site_id, and source name.
+            return Site.objects.filter(name=place_name, site_id=site_id, source__name=site_source)
+    
+    # If place_type does not match any of the above, return an empty queryset.
     return Site.objects.none()
 
 
-def load_layer(request: HttpRequest) -> HttpResponse: 
+def load_layer(request: HttpRequest) -> HttpResponse:
+    """
+    Loads and processes soil layer data, preparing it for visualization in a JSON format.
+    The function extracts necessary data from the global dataframe (`df`) and processes it into a 
+    dictionary format suitable for use in a JavaScript-based frontend.
+
+    Args:
+        request (HttpRequest): The HTTP request containing site data to process.
+
+    Returns:
+        HttpResponse: A JSON response containing the processed soil layer data.
+    """
+
+    # Retrieve the sites related to the current request and load additional data.
     reqSites = append_data_if_new(request)
+    # Extract the names of the sites to include them in the response.
     sites = list(reqSites.values_list("name", flat=True))
-    layers = df
-    pedon_list = layers[PEDON_NAM].to_list()
+    layers = df  # Load the global dataframe `df` that contains the layers' data.
+    pedon_list = layers[PEDON_NAM].to_list()  # Extract the list of pedons (soil samples).
+
+    # If there are no pedons, return an empty JSON response with a "layer_" key.
     if len(pedon_list) == 0:
-        superDict = {"layer_" : []}
-        json_stuff = js(superDict)
-        return HttpResponse(json_stuff, content_type ="application/json")
+        superDict = {"layer_": []}
+        json_stuff = js(superDict)  # Convert the dictionary to JSON.
+        return HttpResponse(json_stuff, content_type="application/json")
+
+    # Count the number of samples and layers in the pedon data.
     num_samples, num_layers = count_changes(pedon_list)
     print(f'Pedon collection has {num_samples} pedons each having at most {num_layers} layers')
 
-    def prep_data_4_box_js(myList: list) -> list:#sub-function of load_layer
+    # Inner function to prepare data for visualization in a box plot (used in JavaScript).
+    def prep_data_4_box_js(myList: list) -> list:
+        """
+        Organizes the data into a 2D array format for visualization.
+        Each element of the list corresponds to a pedon and each column to a layer.
+        """
         layer_num = -1
         sample_num = 0
         data = [[0] * num_samples for _ in range(num_layers)]
@@ -108,35 +190,80 @@ def load_layer(request: HttpRequest) -> HttpResponse:
             layer_num += 1
             data[layer_num][sample_num] = myList[i]
         return data
-    
-    superDict = {"site" : sites, "footer_keys" : summary_keys, "footer_values" : summary_values}
+
+    # Prepare the main dictionary with site names, footer keys, and footer values.
+    superDict = {"site": sites, "footer_keys": summary_keys, "footer_values": summary_values}
     for key in summary_keys:
         superDict[key] = prep_data_4_box_js(layers[key].to_list())
+    
+    # Calculate the layer thickness (difference between BOTTOM and TOP).
     superDict["data"] = prep_data_4_box_js(np.subtract(layers[BOTTOM].to_list(), layers[TOP].to_list()))
-    superDict["layer_"] = np.arange(1, num_layers + 1).tolist()  
+    
+    # Create a list of layer numbers.
+    superDict["layer_"] = np.arange(1, num_layers + 1).tolist()
+
+    # Convert the dictionary to JSON and return as an HTTP response.
     json_stuff = js(superDict)
-    return HttpResponse(json_stuff, content_type ="application/json")
+    return HttpResponse(json_stuff, content_type="application/json")
+
 
 
 def download_layer(request: HttpRequest) -> HttpResponse:
+    """
+    Generates a CSV file for downloading that contains the soil layer data stored in the global dataframe (`df`).
+
+    Args:
+        request (HttpRequest): The HTTP request that triggers the CSV download.
+
+    Returns:
+        HttpResponse: A CSV file containing the layer data.
+    """
+    
+    # Create an HTTP response with a content type for CSV files.
     response = HttpResponse(content_type='text/csv')
+    # Set the filename for the CSV download.
     response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    # Write the global dataframe `df` to the response in CSV format (without the index).
     df.to_csv(response, index=False)
     return response
 
 
+
 def spline(request: HttpRequest) -> HttpResponse:
+    """
+    Retrieves and processes spline coefficient data for pedons from a given site. 
+    It calculates the averages of specific spline variables and returns them in JSON format for frontend display.
+
+    Args:
+        request (HttpRequest): The HTTP request containing site data for which the spline data is calculated.
+
+    Returns:
+        HttpResponse: A JSON response containing the averaged spline data for the layers.
+    """
+    
+    # Get the sites related to the current request and load necessary data.
     reqSites = append_data_if_new(request)
-    spline_keys = list(Standard.objects.filter(summary = True, canSpline = True).values_list("name", flat = True))
-    superDict = {"site" : ["Spline Output Average"], "footer_keys" : spline_keys, "footer_values" : spline_keys}
+    
+    # Retrieve the names of spline keys that can be used for averaging.
+    spline_keys = list(Standard.objects.filter(summary=True, canSpline=True).values_list("name", flat=True))
+    
+    # Prepare the initial structure of the response.
+    superDict = {"site": ["Spline Output Average"], "footer_keys": spline_keys, "footer_values": spline_keys}
+
+    # Inner function to get the average values for a specific spline variable.
     def get_averages(var: str) -> list:
+        """
+        Retrieves the spline coefficients for each pedon and calculates the averages for a given variable.
+        """
         arrays = []
-        pedons = Pedon.objects.filter(site__in = reqSites)
+        pedons = Pedon.objects.filter(site__in=reqSites)
         for pedon in pedons:
-            pedonCoeffs = ast.literal_eval(pedon.splineCoeffs)#This will return either a dict or a str (if the dict is empty)
+            pedonCoeffs = ast.literal_eval(pedon.splineCoeffs)
             if pedonCoeffs.get(var):
                 if type(pedonCoeffs[var]) is dict:
                     arrays.append(np.array(pedonCoeffs[var]["y"]))
+        
+        # Calculate the averages across all the arrays of the spline variable.
         averages = []
         if len(arrays) == 0:
             return averages
@@ -145,28 +272,57 @@ def spline(request: HttpRequest) -> HttpResponse:
             column_values = [arr[i] for arr in arrays if i < len(arr)]
             averages.append([np.round(np.mean(column_values), 3)])
         return averages
+    
+    # Calculate the averages for each spline key.
     for var in spline_keys:
         superDict[var] = get_averages(var)
+    
+    # Ensure all spline variables have the same number of layers by adding -1 for missing layers.
     num_layers = max(len(superDict[var]) for var in spline_keys)
     for var in spline_keys:
         num_to_add = num_layers - len(superDict[var])
         if num_to_add > 0:
             superDict[var].extend([-1] * num_to_add)
+    
+    # Prepare the data for layers and return it in the response.
     superDict["data"] = [[10]] * num_layers
     superDict["layer_"] = np.arange(1, num_layers + 1).tolist()
+    
+    # Convert the dictionary to JSON and return as an HTTP response.
     json_stuff = js(superDict)
-    return HttpResponse(json_stuff, content_type ="application/json")
+    return HttpResponse(json_stuff, content_type="application/json")
 
 
-def get_pedons(request: HttpRequest):
+
+def get_pedons(request: HttpRequest) -> JsonResponse:
+    """
+    Retrieves the list of pedons and associated standards for a given site, returning them in JSON format.
+    If no site is found, returns empty lists for pedons and standards.
+
+    Args:
+        request (HttpRequest): The HTTP request containing the site data to retrieve pedons and standards.
+
+    Returns:
+        JsonResponse: A JSON response containing the list of pedons and standards for the site.
+    """
     try:
+        # Get the sites for the current request.
         site = append_data_if_new(request)
-        pedons = Pedon.objects.filter(site__in = site).values('name', 'pedon_id')
-        synonyms = Synonym.objects.filter(dataset__in = site.first().source.dataset_set.all())
+        
+        # Retrieve pedons for the given sites.
+        pedons = Pedon.objects.filter(site__in=site).values('name', 'pedon_id')
+        
+        # Retrieve standards related to the site's source dataset.
+        synonyms = Synonym.objects.filter(dataset__in=site.first().source.dataset_set.all())
         standards = Standard.objects.filter(name__in=synonyms.values('standard__name'), canSpline=True).values('name')
-        return JsonResponse({'pedons': list(pedons), 'standards' : list(standards)})
+        
+        # Return the pedons and standards in a JSON response.
+        return JsonResponse({'pedons': list(pedons), 'standards': list(standards)})
+    
     except Site.DoesNotExist:
-        return JsonResponse({'pedons': [], 'standards' : []})
+        # In case the site doesn't exist, return empty lists for pedons and standards.
+        return JsonResponse({'pedons': [], 'standards': []})
+
     
     
 def get_spline_line(request: HttpRequest) -> HttpResponse:

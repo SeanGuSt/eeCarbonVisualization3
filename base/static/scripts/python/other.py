@@ -1,5 +1,12 @@
 import json
 import numpy as np
+# Helper function to find the intersection of two lists
+def intersection(lst1: list, lst2: list) -> list:
+    return [value for value in lst1 if value in lst2]
+
+# Helper function to get unique values in a list
+def unique(lst) -> list:
+    return list(set(lst))
 def js(dic: dict) -> str:
     #Makes variables usable with javascript. This is a last resort, and must ONLY be used if the variable won't also be used with HTML
     return json.dumps(dic)

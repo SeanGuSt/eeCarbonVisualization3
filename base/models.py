@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.apps import apps
 import requests
 from io import StringIO
-from.constant import LAYER_NAM, PEDON_NAM, LAT_LONG_NAME, SITE_NAM, PEDON_ID
+from.constant import PEDON_NAM, PEDON_ID
+from.static.scripts.python.other import intersection, unique
 import pandas as pd
 MAX_DELIM_LENGTH = 1
 MAX_STR_LENGTH = 255
@@ -80,14 +81,6 @@ class Pedon(Model):
     def __str__(self):
         return self.name
 
-# Helper function to find the intersection of two lists
-def intersection(lst1: list, lst2: list) -> list:
-    return [value for value in lst1 if value in lst2]
-
-# Helper function to get unique values in a list
-def unique(lst) -> list:
-    return list(set(lst))
-
 # Function to fetch data from a source and process it into a pandas DataFrame
 def fetch_data(source: Source, include: list = [], exclude: list = [], need: list = [], where: QuerySet[Site] = Site.objects.none()) -> pd.DataFrame:
     """
@@ -96,14 +89,14 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
     and need lists.
 
     Args:
-    source (Source): The source from which the data is being fetched.
-    include (list): List of columns to include in the data.
-    exclude (list): List of columns to exclude from the data.
-    need (list): List of required columns that must be present in the dataset.
-    where (QuerySet): Additional filtering conditions to apply on the data.
+        source (Source): The source from which the data is being fetched.
+        include (list): List of columns to include in the data.
+        exclude (list): List of columns to exclude from the data.
+        need (list): List of required columns that must be present in the dataset.
+        where (QuerySet): Additional filtering conditions to apply on the data.
 
     Returns:
-    pd.DataFrame: The processed data in a DataFrame format.
+        pd.DataFrame: The processed data in a DataFrame format.
     """
     # Ensure that the 'need' list is a sublist of 'include' and that 'include' and 'exclude' are disjoint
     if intersection(need, include) != need:
@@ -186,7 +179,7 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
                 df = df.rename(columns={column + suffix: column})
                 column_count = df.columns.to_list().count(column)
             if column_count > 1:  # If there are now multiple columns with the same name, combine them
-                x = df[column].bfill(axis=1).iloc[:, 0]  # Backfill missing values and get the first non-NaN value
+                x = df[column].dropna(axis=1, how='all').bfill(axis=1).iloc[:, 0]  # Backfill missing values and get the first non-NaN value
                 df = df.drop(columns=[column])  # Drop the original column
                 df[column] = x  # Assign the combined values back to the column
         return df

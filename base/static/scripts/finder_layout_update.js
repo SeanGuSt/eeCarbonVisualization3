@@ -178,81 +178,102 @@ function updateSoilSpline(event){
     
 }
 function graph_builder(){
-    $.ajax({                       // initialize an AJAX request
-        url: URLs,  // set the url of the request
-        data: {      
-            "type" : X_AXIS_DEFAULT_TEXT,
-            "name" : place_name
-        },
-        success: function (data) {
-            if(data.layer_.length == 0){
-                const popupGraph = `No data to display. Sorry!`;
-                popup_holder.bindPopup(popupGraph);
-                return;
-            }
-            console.log("Starting Graph");
-            if(soilLayerBarChart != null){
-                soilLayerBarChart.destroy();
-                //If the chartId is 1, set it to 0. If 0, set it to 1.
-                //This allows us to change bar charts easily. My best guess as to why it works is it... allows the old chart time to replace the stuff it had?
-                //I said it was my best guess, not a good one.
-                //To see the problem with bar charts not appearing, simply comment out the line below.
-                chartId = chartId == 1 ? 0 : 1;
-            }
-            const popupGraph = `<div><canvas id="soilLayerBarChart`+chartId+`" width="560" height="315"></canvas></div>
-                                <button id="download" onclick="downloadData(event)">Download</button>
-                                <button id="switch" onclick="updateSoilSpline(event)">` + GRAPH_MODE +  `View</button>
-                                <a href = "` + detUrl + `?type=` + X_AXIS_DEFAULT_TEXT + `&name=` + place_name + `">Detailed View</a>`;
-            console.log("Binding Graph");
-            popup_holder.bindPopup(popupGraph);
-            var ctxMap = document.getElementById("soilLayerBarChart"+chartId).getContext("2d");
-            console.log("Making Chart");
-            const dataBar = {datasets: [{type: 'bar'}]};
-            soilLayerBarChart = new Chart(ctxMap, {
-                // The type of chart we want to create
-                type: "bar",
-                // The data for our dataset
-                data: dataBar,
-                //The configuration details for our graph
-                options: configBar
-            });
-            var cdd = soilLayerBarChart.data.datasets;//cdd short for chart data datasets
-            const footer_keys_count = data.footer_keys.length;
-            const footer = (tooltipItems) => {
-                let footer_lines = [];
-                tooltipItems.forEach(function(tooltipItem) {//For each layer of soil data
-                    for(let i = 0; i < footer_keys_count; i++){//For each string in footer_keys
-                        value = cdd[tooltipItem.datasetIndex-1][data.footer_keys[i]][tooltipItem.dataIndex];
-                        if(value){//If this value exists
-                            //have the following string show up.
-                            footer_lines.push(data.footer_values[i] + ": " + value);
-                        }
-                            
+    url = URLs + `?type=${encodeURIComponent(X_AXIS_DEFAULT_TEXT)}&name=${encodeURIComponent(place_name)}`;
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        // Check if there's any data to display, otherwise show a popup with a message
+        if (data.layer_.length === 0) {
+            const popupGraph = `No data to display. Sorry!`;
+            popup_holder.bindPopup(popupGraph);  // Bind the popup to the map
+            return;  // Exit the function early if no data
+        }
+        
+        console.log("Starting Graph");
+
+        // If a chart already exists, destroy it before creating a new one
+        if (soilLayerBarChart !== null) {
+            soilLayerBarChart.destroy();
+            // Toggle chartId between 1 and 0, allowing us to easily switch between charts
+            //If the chartId is 1, set it to 0. If 0, set it to 1.
+            //My best guess as to why this is necessary is it... allows the old chart time to replace the stuff it had?
+            //I said it was my best guess, not a good one.
+            //To see the problem with bar charts not appearing, simply comment out the line below.
+            chartId = chartId === 1 ? 0 : 1;
+        }
+
+        // Prepare the popup HTML with a canvas for the chart and buttons for downloading or switching views
+        const popupGraph = `<div><canvas id="soilLayerBarChart` + chartId + `" width="560" height="315"></canvas></div>
+                            <button id="download" onclick="downloadData(event)">Download</button>
+                            <button id="switch" onclick="updateSoilSpline(event)">` + GRAPH_MODE + `View</button>
+                            <a href = "` + detUrl + `?type=` + X_AXIS_DEFAULT_TEXT + `&name=` + place_name + `">Detailed View</a>`;
+        console.log("Binding Graph");
+        popup_holder.bindPopup(popupGraph);  // Bind the graph to the popup
+
+        // Get the context of the canvas for Chart.js
+        var ctxMap = document.getElementById("soilLayerBarChart" + chartId).getContext("2d");
+        console.log("Making Chart");
+
+        // Initialize the bar chart with empty data
+        const dataBar = { datasets: [{ type: 'bar' }] };
+        soilLayerBarChart = new Chart(ctxMap, {
+            type: "bar",  // Chart type (bar chart)
+            data: dataBar,  // Data for the chart
+            options: configBar  // Chart configuration options
+        });
+
+        // Get the chart datasets
+        var cdd = soilLayerBarChart.data.datasets;
+        const footer_keys_count = data.footer_keys.length;
+
+        // Create a custom footer for the chart tooltips
+        const footer = (tooltipItems) => {
+            let footer_lines = [];
+            tooltipItems.forEach(function(tooltipItem) {
+                for (let i = 0; i < footer_keys_count; i++) {
+                    // Get the value for each footer key and show it in the tooltip
+                    value = cdd[tooltipItem.datasetIndex - 1][data.footer_keys[i]][tooltipItem.dataIndex];
+                    if (value) {
+                        footer_lines.push(data.footer_values[i] + ": " + value);  // Append the footer line
                     }
-                });
-                return footer_lines;
-            };
-            soilLayerBarChart.options.scales.x.title.text = X_AXIS_DEFAULT_TEXT + ": " + place_name;//Set x-axis label
-            soilLayerBarChart.options.plugins.tooltip.callbacks.footer = footer;//Set the footers.
-            for(let layer_num = 0; layer_num < data.layer_.length; layer_num++){
-                var newDataset = {
-                    data: data.data[layer_num],
-                    type : "bar",
-                    label : "Layer " + data.layer_[layer_num],
-                    backgroundColor : BCOLOR[layer_num % BCOLOR.length]
-                };
-                console.log(cdd);
-                console.log(data);
-                for (let i = 0; i < footer_keys_count; i++){
-                    cdd[layer_num][data.footer_keys[i]] = data[data.footer_keys[i]][layer_num];
                 }
-                cdd.push(newDataset);
+            });
+            return footer_lines;  // Return the footer content
+        };
+
+        // Set the x-axis label for the chart
+        soilLayerBarChart.options.scales.x.title.text = X_AXIS_DEFAULT_TEXT + ": " + place_name;
+        // Assign the footer function to the tooltip plugin
+        soilLayerBarChart.options.plugins.tooltip.callbacks.footer = footer;
+
+        // Loop through the layers and add a dataset for each one
+        for (let layer_num = 0; layer_num < data.layer_.length; layer_num++) {
+            var newDataset = {
+                data: data.data[layer_num],  // Data for the layer
+                type: "bar",  // Dataset type (bar)
+                label: "Layer " + data.layer_[layer_num],  // Label for the layer
+                backgroundColor: BCOLOR[layer_num % BCOLOR.length]  // Color for the bars
+            };
+            console.log(cdd);
+            console.log(data);
+            // Update the chart's dataset with the footer values
+            for (let i = 0; i < footer_keys_count; i++) {
+                cdd[layer_num][data.footer_keys[i]] = data[data.footer_keys[i]][layer_num];
             }
-            for(let i = 1; i <= cdd[DATASET_BAR_GRAPH].data.length; i++){soilLayerBarChart.data.labels.push("Sample " + i);}
-            soilLayerBarChart.update();
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) { 
-            alert("Status: " + textStatus); alert("Error: " + errorThrown); 
-        }   
+            cdd.push(newDataset);  // Add the new dataset to the chart
+        }
+
+        // Add labels for each sample to the chart
+        for (let i = 1; i <= cdd[DATASET_BAR_GRAPH].data.length; i++) {
+            soilLayerBarChart.data.labels.push("Sample " + i);
+        }
+
+        // Update the chart to reflect the new data
+        soilLayerBarChart.update();
+    })
+    .catch(error => {
+        // Handle any errors that occur during the fetch operation
+        console.error("Error fetching data:", error);
+        alert("An error occurred while loading the graph.");
     });
 }
