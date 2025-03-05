@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
 from .static.scripts.python.other import js, count_changes
-from .models import Site, Pedon, Standard, Synonym, Source, fetch_data
-from scipy.interpolate import CubicSpline
+from .models import Site, Pedon, Standard, Synonym, Source, Dataset, fetch_data
+from scipy.interpolate import PchipInterpolator
 import numpy as np
 import pandas as pd
 import ast
@@ -26,10 +26,7 @@ class IndexView(generic.ListView):
     template_name = "searcher/stationFinder.html"
     def get_queryset(self) -> dict[str, str]:
         print("Finding geolocations...")
-        #geolocations = [{"lat" : site.latitude, "lon" : site.longitude} for site in Pedon.objects.all()]
-        #sites = [site.name for site in Pedon.objects.all()]
         initial_geocenter = {"lat" : 44.967, "lon" : -106.233}#calculate_centroid(geolocations)#Where the map should be centered
-        #return {"geolocations": js(geolocations), "initial_geocenter" : js(initial_geocenter), "sites" : js(sites)}
         return {"initial_geocenter" : js(initial_geocenter)}#, "summary_keys" : js(summary_keys)}
 
 
@@ -37,10 +34,19 @@ class DetailedView(generic.TemplateView):
     template_name = "searcher/detailedStation.html"
     def get_context_data(self, **kwargs) -> dict:
         sites = get_sites_in_place(self.request)
-        return {"sites" : sites}
+        append_data_if_new(sites)
+        pedons = Pedon.objects.filter(site__in = sites)
+        sources = Source.objects.filter(id__in=pedons.values_list('site__source__id', flat=True))
+        # Step 1: Retrieve all Dataset objects related to these sources
+        datasets = Dataset.objects.filter(source__in=sources)
+        # Step 2: Retrieve all Synonym objects related to these datasets
+        synonyms = Synonym.objects.filter(dataset__in=datasets)
+        # Step 3: Retrieve all Standard objects related to these synonyms
+        standards = Standard.objects.filter(id__in=synonyms.values_list('standard__id', flat=True), canSpline = True)
+        return {"pedons" : pedons, "standards" : standards}
 
 
-def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
+def append_data_if_new(reqSites: QuerySet[Site]):
     """
     Appends new data to the global dataframe (`df`) for sites not previously loaded. 
     If the data source type is 'XL', it will be appended to a separate dataframe (`df_xl`). 
@@ -48,7 +54,7 @@ def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
     It returns the list of sites that were processed during this operation.
 
     Args:
-        request (HttpRequest): The HTTP request containing the site data to be processed.
+        reqSites (QuerySet[Site]): A queryset of the sites to be processed.
 
     Returns:
         QuerySet[Site]: A queryset of the sites that were processed.
@@ -59,9 +65,6 @@ def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
     # Initialize a new empty DataFrame `df` with predefined column names from `summary_keys`.
     df = pd.DataFrame(columns=summary_keys)
 
-    # Get the list of sites related to the request.
-    reqSites = get_sites_in_place(request)
-
     # Initialize a list to track sources that have already been loaded (temporary for this request).
     temp_already_loaded = []
 
@@ -70,7 +73,6 @@ def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
         # Iterate over each site in the request's sites.
         for site in reqSites:
             source = site.source  # Extract the source of the site.
-
             # Check if the source hasn't been loaded yet and its type is "XL".
             if source not in already_loaded and source.type == "XL":
                 # Mark this source as loaded.
@@ -86,20 +88,22 @@ def append_data_if_new(request: HttpRequest) -> QuerySet[Site]:
                 # Mark this source as loaded in the temporary list.
                 temp_already_loaded.append(source)
                 # Fetch new data for this source, limiting it to the relevant sites.
-                dfNew = fetch_data(source, where=reqSites)
+                dfNew = fetch_data(source, include = summary_keys, where=reqSites)
                 dfNew["Source"] = source.name
                 # Append this data to the main `df` dataframe.
                 df = pd.concat([df, dfNew.dropna(axis=1, how='all')])
-
         # If there is data in `df_xl`, filter and append relevant data to `df`.
         if not df_xl.empty:
             df = pd.concat([df, df_xl[df_xl[SITE_NAM].isin(list(reqSites.values_list("name", flat=True)))]])
         
         # Clean the dataframe by inferring object types and filling missing values with -1.
         df = df.infer_objects(copy=False).fillna(-1)
-
-    # Return the queryset of sites that were processed.
-    return reqSites
+        if SITE_ID in df.columns:
+            if df[SITE_ID].nunique() == 1:
+                df[SITE_ID] = df[SITE_NAM]
+        if PEDON_ID in df.columns:
+            if df[PEDON_ID].nunique() == 1:
+                df[PEDON_ID] = df[PEDON_NAM]
 
 
 
@@ -131,8 +135,12 @@ def get_sites_in_place(request: HttpRequest) -> QuerySet[Site]:
             county_state = place_name.split(", ")
             return Site.objects.filter(county=county_state[0], state=county_state[1]).distinct()
         
-        case "Individual Station":
-            # Extract additional identifiers for individual station filtering.
+        case "Rectangle":
+            box_corner = [float(i) for i in place_name.split("_")]
+            return Site.objects.filter(latitude__lte = box_corner[1], latitude__gte = box_corner[3], longitude__lte = box_corner[2], longitude__gte = box_corner[0])
+        
+        case "Individual Site":
+            # Extract additional identifiers for individual site filtering.
             site_id = request.GET.get("site_id")
             site_source = request.GET.get("site_source")
             # Filter by name, site_id, and source name.
@@ -156,7 +164,8 @@ def load_layer(request: HttpRequest) -> HttpResponse:
     """
 
     # Retrieve the sites related to the current request and load additional data.
-    reqSites = append_data_if_new(request)
+    reqSites = get_sites_in_place(request)
+    append_data_if_new(reqSites)
     # Extract the names of the sites to include them in the response.
     sites = list(reqSites.values_list("name", flat=True))
     layers = df  # Load the global dataframe `df` that contains the layers' data.
@@ -242,7 +251,7 @@ def spline(request: HttpRequest) -> HttpResponse:
     """
     
     # Get the sites related to the current request and load necessary data.
-    reqSites = append_data_if_new(request)
+    reqSites = get_sites_in_place(request)
     
     # Retrieve the names of spline keys that can be used for averaging.
     spline_keys = list(Standard.objects.filter(summary=True, canSpline=True).values_list("name", flat=True))
@@ -251,14 +260,13 @@ def spline(request: HttpRequest) -> HttpResponse:
     superDict = {"site": ["Spline Output Average"], "footer_keys": spline_keys, "footer_values": spline_keys}
 
     # Inner function to get the average values for a specific spline variable.
-    def get_averages(var: str) -> list:
+    def get_averages(var: str, pedons: QuerySet[Pedon]) -> list:
         """
         Retrieves the spline coefficients for each pedon and calculates the averages for a given variable.
         """
         arrays = []
-        pedons = Pedon.objects.filter(site__in=reqSites)
         for pedon in pedons:
-            pedonCoeffs = ast.literal_eval(pedon.splineCoeffs)
+            pedonCoeffs = pedon.splineCoeffs
             if pedonCoeffs.get(var):
                 if type(pedonCoeffs[var]) is dict:
                     arrays.append(np.array(pedonCoeffs[var]["y"]))
@@ -274,8 +282,10 @@ def spline(request: HttpRequest) -> HttpResponse:
         return averages
     
     # Calculate the averages for each spline key.
+    print(reqSites)
+    pedons = Pedon.objects.filter(site__in=reqSites)
     for var in spline_keys:
-        superDict[var] = get_averages(var)
+        superDict[var] = get_averages(var, pedons)
     
     # Ensure all spline variables have the same number of layers by adding -1 for missing layers.
     num_layers = max(len(superDict[var]) for var in spline_keys)
@@ -291,38 +301,6 @@ def spline(request: HttpRequest) -> HttpResponse:
     # Convert the dictionary to JSON and return as an HTTP response.
     json_stuff = js(superDict)
     return HttpResponse(json_stuff, content_type="application/json")
-
-
-
-def get_pedons(request: HttpRequest) -> JsonResponse:
-    """
-    Retrieves the list of pedons and associated standards for a given site, returning them in JSON format.
-    If no site is found, returns empty lists for pedons and standards.
-
-    Args:
-        request (HttpRequest): The HTTP request containing the site data to retrieve pedons and standards.
-
-    Returns:
-        JsonResponse: A JSON response containing the list of pedons and standards for the site.
-    """
-    try:
-        # Get the sites for the current request.
-        site = append_data_if_new(request)
-        
-        # Retrieve pedons for the given sites.
-        pedons = Pedon.objects.filter(site__in=site).values('name', 'pedon_id')
-        
-        # Retrieve standards related to the site's source dataset.
-        synonyms = Synonym.objects.filter(dataset__in=site.first().source.dataset_set.all())
-        standards = Standard.objects.filter(name__in=synonyms.values('standard__name'), canSpline=True).values('name')
-        
-        # Return the pedons and standards in a JSON response.
-        return JsonResponse({'pedons': list(pedons), 'standards': list(standards)})
-    
-    except Site.DoesNotExist:
-        # In case the site doesn't exist, return empty lists for pedons and standards.
-        return JsonResponse({'pedons': [], 'standards': []})
-
     
     
 def get_spline_line(request: HttpRequest) -> HttpResponse:
@@ -341,25 +319,27 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
     """
     
     # Initialize variables and CubicSpline object
-    default_upper_bound = 101  # Default value for upper bound of x values for prediction
+
+    default_upper_bound = 201  # Default value for upper bound of x values for prediction
     x_pred = np.arange(default_upper_bound)  # x values to predict (from 0 to default_upper_bound)
     y_pred = np.zeros(default_upper_bound)  # Array to store the predicted y values (initialized to 0)
     denom = np.zeros(default_upper_bound)  # Array to track the number of predictions at each x value
-    cs = CubicSpline([0, 1], [0, 1], bc_type = 'natural')  # Initialize a cubic spline object (dummy with [0,1] as initial values)
+    cs = PchipInterpolator([0, 1], [0, 1])  # Initialize a cubic spline object (dummy with [0,1] as initial values)
     
     # Fetch pedons matching the name and pedon_id from the GET request parameters
     pedons = Pedon.objects.filter(name=request.GET.get("name"), pedon_id=request.GET.get("id"))
-    #var = Standard.objects.get(request.GET.get("var"))
-    var = SOC
+    print(f"Pedon ID received: {request.GET.get('id')}")
+    print(pedons)
+    var = request.GET.get("var")
     
     # Convert the dataframe to ensure PEDON_ID is of type string for correct indexing later
     dfTemp = df.astype({PEDON_ID: 'str'})
-    
+    dfTemp[PEDON_ID] = dfTemp[PEDON_ID].astype(str).str.replace('.0', '', regex=False)
     # Loop through all the pedons (soil samples) returned by the filter query
     for pedon in pedons:
         # Parse the spline coefficients and x values for the pedon from the database
-        pedonCoeffs = ast.literal_eval(pedon.splineCoeffs)
-        cs.x = np.array(ast.literal_eval(pedon.x))  # Set the x values of the spline
+        pedonCoeffs = pedon.splineCoeffs
+        cs.x = np.array(pedon.x) # Set the x values of the spline
         
         # Create a new x_obs array based on the cubic spline x values
         x_obs = np.arange(cs.x.size + 1)  # Generate initial x_obs values
@@ -371,7 +351,7 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
         cs.c = np.array(pedonCoeffs[var]["c"])  # Assign the coefficients for the spline
 
         # Get observed y values from the dataframe for the given variable and pedon
-        y_obs = np.array(dfTemp.loc[dfTemp[PEDON_NAM] == pedon.name, var])
+        y_obs = np.array(dfTemp.loc[dfTemp[PEDON_ID] == pedon.pedon_id, var])
 
         # Create a list of x, y pairs for the current variable
         xy = [{"x": X, "y": Y} for X, Y in zip([(x_obs[i] + x_obs[i+1]) / 2 for i in range(len(x_obs) - 1)], y_obs)]
@@ -391,10 +371,6 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
         # Apply the mask to remove depths and scale the predictions
         x_pred = x_pred[mask]
         y_pred = y_pred[mask] / denom[mask]  # Normalize the predictions by the number of times predicted
-        
-        # Exit the loop after processing the first variable (break after first round)
-        break
-        
         # Exit the outer loop after processing the first pedon (break after first pedon)
         break
 

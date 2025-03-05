@@ -84,8 +84,8 @@ DATABASES = {
         'NAME': BASE_DIR / 'ncss_labdata.sqlite',
     },
     'ISCN3_layer': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ISCN3_layer.sql'
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'ISCN3_layer.sqlite'
     }
 }
 

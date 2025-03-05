@@ -6,7 +6,7 @@ from .models import Source, Site, Standard, Dataset, Synonym, Model, Pedon, fetc
 from global_land_mask import globe
 import pandas as pd
 import numpy as np
-from scipy.interpolate import CubicSpline
+from scipy.interpolate import PchipInterpolator
 from django.http import HttpResponse, HttpRequest
 from .constant import DATABASE, DATASET_TYPE, SITE_ID, PEDON_ID, URL, LAT, LONG, LAT_LONG_NAME, SITE_NAM, TOP, BOTTOM, PEDON_NAM, LAYER_NAM
 filepath = os.path.join(settings.BASE_DIR, "base\SynonymBook.xlsx")
@@ -22,9 +22,11 @@ def catchRepeat(modl: Model, Dict: dict[str, ]) -> Model | bool:
     #Returns the model created (or that had already been created)
     try:
         modl(**Dict).save()
-    except IntegrityError:#Raise warning if instance with this name already exists
-        warnings.warn(f'{Dict["name"]} is already represented.')
+    except IntegrityError as e:#Raise warning if instance with this name already exists
+        print(f'{Dict["name"]} is already represented.')
     except ValueError:
+        return False
+    if Dict["name"] == "None" or not Dict["name"]:
         return False
     if modl == Synonym:
         return modl.objects.get(name = Dict["name"], standard = Dict["standard"])
@@ -32,6 +34,7 @@ def catchRepeat(modl: Model, Dict: dict[str, ]) -> Model | bool:
         return modl.objects.get(name = Dict["name"], source = Dict["source"], site_id = Dict["site_id"])
     if modl == Pedon:
         return modl.objects.get(name = Dict["name"], site = Dict["site"], pedon_id = Dict["pedon_id"])
+            
     return modl.objects.get(name = Dict["name"])
 
 
@@ -97,10 +100,7 @@ def siteMaker(mSource: Source):
     t0 = time.time()
 
     # Fetch location data from the provided source, including latitude, longitude, site ID, etc.
-    df = fetch_data(mSource, [LAT, LONG, LAT_LONG_NAME, SITE_ID])
-    
-    # Print the columns of the fetched dataframe for debugging or verification
-    print(df.columns)
+    df = fetch_data(mSource, [LAT, LONG, LAT_LONG_NAME, SITE_ID, SITE_NAM])
 
     # Remove duplicate rows from the dataframe (if any)
     dfSite = df.drop_duplicates()
@@ -204,7 +204,7 @@ def pedonMaker(mSource: Source):
     # Function to calculate cubic spline coefficients for given x, y values
     def spliner(x: np.ndarray, y: np.ndarray) -> dict[str, list]:
         # Create a CubicSpline object to calculate the coefficients
-        cs = CubicSpline(x, y, bc_type = 'natural')
+        cs = PchipInterpolator(x, y)
         
         # Initialize an empty list to store interpolated values
         y1 = []
@@ -241,7 +241,7 @@ def pedonMaker(mSource: Source):
             pedonDict = {
                 "name": pedon,        # Pedon name
                 "pedon_id": pedon,    # Use the Pedon's name by default
-                "splineCoeffs": str(sv_dict),  # Placeholder for spline coefficients
+                "splineCoeffs": sv_dict,  # Placeholder for spline coefficients
                 "site": site           # The site associated with this pedon
             }
 
@@ -268,7 +268,9 @@ def pedonMaker(mSource: Source):
                     if points[-1] == points[-2]:
                         points[-1] += 10  # Ensure the last two points are distinct
                     x = np.array([(points[i] + points[i+1])/2 for i in range(len(points) - 1)])  # Midpoint for interpolation
-                    pedonDict["x"] = str(x.tolist())
+                    if np.any(np.isnan(x)):
+                        continue
+                    pedonDict["x"] = x.tolist()
 
                 # Loop through each variable and calculate the spline coefficients if possible
                 for var in var_names:
@@ -290,10 +292,11 @@ def pedonMaker(mSource: Source):
                             print(f"Skipping {var} spline coefficients for {pedon}. For some unknown reason.")
 
             # Save the final pedon dictionary (with computed spline coefficients)
-            pedonDict["splineCoeffs"] = str(sv_dict)
+            pedonDict["splineCoeffs"] = sv_dict
             # Call the catchRepeat function to handle saving or avoiding duplicates
             catchRepeat(Pedon, pedonDict)
 
+    Site.objects.filter(source = mSource, pedon__isnull=True).delete()
     # Record the time after storing the sites
     t1 = time.time()
     print(f'Pedons stored! Time to store: {round(t1-t0, 3)} seconds.')

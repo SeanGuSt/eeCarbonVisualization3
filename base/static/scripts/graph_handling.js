@@ -62,64 +62,23 @@ soilLayerLine = new Chart(ctx, {
 var cdd = soilLayerLine.data.datasets;//cdd short for chart data datasets
 
 
-$(".site_radio").click(function(){
-    selectedValue = $(this).val();
-    inputs = selectedValue.split("_");
-    // Hide all pedon option sections
-    const allPedonSections = document.querySelectorAll('.pedon-options');
-    allPedonSections.forEach(function(section) {
-        section.style.display = 'none';
-    });
-
-    // Show the pedon section for the selected site
-    const pedonSection = document.getElementById('pedons_of_' + inputs[0] + "_" + inputs[1] + "_" + inputs[2]);
-    if (pedonSection) {
-        pedonSection.style.display = 'block';
-    }
-    const url = pdUrl + `?type=${encodeURIComponent("Individual Station")}&name=${encodeURIComponent(inputs[0])}&site_id=${encodeURIComponent(inputs[1])}&site_source=${encodeURIComponent(inputs[2])}`;
-
-    // Perform the fetch request
-    fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        pedonSection.innerHTML = '<p>No pedons available for this site.</p>'; // Clear previous pedons if any
-        if (data.pedons.length > 0) {
-            pedonSection.innerHTML = '';
-            data.pedons.forEach(pedon => {
-                const radioBtn = document.createElement('input');
-                radioBtn.type = 'radio';
-                radioBtn.className = 'pedon_radio'
-                radioBtn.id = 'pedon_' + pedon.name + "_" + pedon.pedon_id;
-                radioBtn.name = 'pedon_' + inputs[0];
-                radioBtn.value = pedon.name + "_" + pedon.pedon_id;;
-
-                const label = document.createElement('label');
-                label.setAttribute('for', 'pedon_' + pedon.name + "_" + pedon.pedon_id);
-                label.innerText = pedon.name;
-
-                pedonSection.appendChild(radioBtn);
-                pedonSection.appendChild(label);
-                pedonSection.appendChild(document.createElement('br'));
-            });
-        }
-    });
-});
-
-
 $(document).on('click', ".pedon_radio", function(){
     selectedValue = $(this).val();
     inputs = selectedValue.split("_");
+    std_name = document.querySelector('input[name="stan2avg"]:checked').value;
     console.log("Selected value: " + selectedValue);
     $.ajax({                       // initialize an AJAX request
         url: spUrl,
         data: {
-            "type" : "Individual Station",
+            "type" : "Individual Site",
             "name" : inputs[0],
             "id" : inputs[1],
-            "var" : ""
+            "site_id" : inputs[2],
+            "var" : std_name
         },
         success: function(response){
-            soilLayerLine.options.scales.x.title.text = selectedValue + " Samples' Averaged Spline";
+            soilLayerLine.options.scales.x.title.text = selectedValue + " Sample Spline";
+            soilLayerLine.options.scales.y.title.text = std_name;
             soilLayerLine.data.labels = response.x;
             cdd[0].data = response.y0;
             cdd[1].labels = response.x;
@@ -127,7 +86,6 @@ $(document).on('click', ".pedon_radio", function(){
             cdd[2].labels = response.x;
             cdd[2].data = response.y1;
             soilLayerLine.update();
-            console.log(cdd[0])
         }
     });
 });

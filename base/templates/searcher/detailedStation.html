@@ -9,25 +9,33 @@
     </head>
     <body>
         <div class = "detailedStation-grid-container">
-            <div id = "site_select">
-                <p>Please select a site:</p>
-                {% for site in sites %}
-                    <div class = "site-option">
-                        <input class = "site_radio" type="radio" id="site_{{site.name}}_{{site.site_id}}_{{site.source.name}}" name="site2avg" value="{{site.name}}_{{site.site_id}}_{{site.source.name}}">
-                        <label for="site_{{site.name}}_{{ site.site_id }}_{{site.source.name}}">{{site.name}}</label><br>
-                        <div id="pedons_of_{{site.name}}_{{ site.site_id }}_{{site.source.name}}" class="pedon-options" style="display: none; margin-left: 20px;">
-                            <!-- Pedons will be dynamically inserted here -->
+            <div id="selectors">
+                <p>Please select a variable:</p>
+                <div id="var_select">
+                    {% for standard in standards %}
+                        <div class="pedon-option">
+                            <input class="stan_radio" type="radio" id="stan_{{standard.name}}" name="stan2avg" value="{{standard.name}}" {% if forloop.first %}checked{% endif %}>
+                            <label for="stan_{{standard.name}}">{{standard.name}}</label><br>
                         </div>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                <p>Please select a pedon:</p>
+                <div id="pedon_select">
+                    {% for pedon in pedons %}
+                        <div class="pedon-option">
+                            <input class="pedon_radio" type="radio" id="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.source.name}}" name="pedon2avg" value="{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.site_id}}_{{pedon.site.source.name}}">
+                            <label for="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.source.name}}">{{pedon.name}}</label><br>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
+            
             <div id = "graph">
                 <canvas id="soilLayerDataLine"></canvas>
             </div>
         </div>
         <script>
             const spUrl = "{% url 'base:ajax_spline_line' %}";
-            const pdUrl = "{% url 'base:get_pedons' %}";
         </script>
         <script src = {% static "scripts/graph_handling.js" %}></script>
     </body>

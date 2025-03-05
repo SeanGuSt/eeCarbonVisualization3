@@ -1,11 +1,11 @@
-from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToManyField, URLField, TextField, FloatField, CASCADE
+from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToManyField, URLField, TextField, FloatField, JSONField, CASCADE
 from django.db import connections
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
 from django.apps import apps
 import requests
 from io import StringIO
-from.constant import PEDON_NAM, PEDON_ID
+from.constant import PEDON_NAM, PEDON_ID, SITE_NAM, SITE_ID, LAT_LONG_NAME
 from.static.scripts.python.other import intersection, unique
 import pandas as pd
 MAX_DELIM_LENGTH = 1
@@ -33,7 +33,7 @@ class Dataset(Model):
     name = CharField(max_length=MAX_STR_LENGTH, unique=True)
     hasSoil = BooleanField(default = False)#Soil data
     hasTime = BooleanField(default = False)#Temporal data
-    source = ForeignKey(Source, on_delete = CASCADE)
+    source = ForeignKey(Source, on_delete = CASCADE)#Source of Dataset
     file = URLField(max_length=MAX_STR_LENGTH, default = "")#Set as empty if this is a Database
     delimiter = CharField(max_length=MAX_DELIM_LENGTH, default = ",")#Set as empty if this is a Database
     def __str__(self):
@@ -68,10 +68,8 @@ class Site(Model):
 class Pedon(Model):
     name = CharField(default = "", max_length=MAX_STR_LENGTH)#Some sources may have sites with the same name.
     pedon_id = CharField(default = "", max_length=MAX_STR_LENGTH)
-    x = TextField(default = "")
-    splineCoeffs = TextField(default = "")
-    BDc = TextField(default = "")
-    SOCc = TextField(default = "")
+    x = JSONField(default = list)
+    splineCoeffs = JSONField(default = dict)
     site = ForeignKey(Site, on_delete=CASCADE, default = 1)#All Pedons come from a Site
     interpolation_warning = BooleanField(default = False)
     interpolation_type = TextField(default = "")
@@ -80,9 +78,11 @@ class Pedon(Model):
         unique_together = ["name", "pedon_id", "site"]
     def __str__(self):
         return self.name
+#End goal, deduce which of the splinable standards are available from the given pedons.    
+#pedon.site.source
 
 # Function to fetch data from a source and process it into a pandas DataFrame
-def fetch_data(source: Source, include: list = [], exclude: list = [], need: list = [], where: QuerySet[Site] = Site.objects.none()) -> pd.DataFrame:
+def fetch_data(source: Source, include: list = [], exclude: list = [], need: list = [], where: QuerySet = Site.objects.none()) -> pd.DataFrame:
     """
     Fetches data from the specified source and processes it into a DataFrame. It validates the input and handles 
     different types of data sources (CSV, Excel, or databases). Data can be filtered using include, exclude, 
@@ -98,8 +98,8 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
     Returns:
         pd.DataFrame: The processed data in a DataFrame format.
     """
-    # Ensure that the 'need' list is a sublist of 'include' and that 'include' and 'exclude' are disjoint
-    if intersection(need, include) != need:
+    # Ensure that the 'need' list is a sublist of 'include' (if 'include' isn't empty) and that 'include' and 'exclude' are disjoint
+    if intersection(need, include) != need and include != []:
         raise Exception("need must be a sublist of include.")
     if intersection(include, exclude):
         raise Exception("include and exclude must be disjoint.")
@@ -111,13 +111,11 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
     # Loop through each dataset related to the source
     for dataset in datasets:
         synonyms = Synonym.objects.filter(dataset=dataset)  # Get synonyms related to this dataset
-        merge_on = dataset.synonym_set.all().order_by('id').first().standard.name  # Select the standard name for merging
-        synList = unique(synonyms.values_list("name", flat=True))  # Create a unique list of synonyms
-
+        merge_on = dataset.synonym_set.all().order_by('id').first().standard.name  # Select the standard variable for merging
+        synList = unique(synonyms.values_list("name", flat=True))  # Create a list of unique synonyms
         # Ensure the 'need' columns are present in the synonyms list
         if len(intersection(synList, list(synonyms.filter(standard__name__in=need).values_list("name", flat=True)))) != len(need):
             continue  # Skip this dataset if 'need' columns are not available
-
         # Apply 'include' filter on the synonyms list if provided
         if include:
             synList = intersection(synList, list(synonyms.filter(standard__name__in=include).values_list("name", flat=True)))
@@ -128,9 +126,8 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
                 synList.remove(syn)
 
         # Skip datasets with insufficient columns
-        if len(synList) < 2 and not df.empty:
+        if (len(synList) < 2 and not df.empty) or len(synList) == 0:
             continue
-
         # If the dataset uses a single delimiter, fetch data from a CSV or Excel file
         if len(dataset.delimiter) == 1:
             response = requests.get(dataset.file)  # Make an HTTP request to fetch the file
@@ -145,27 +142,43 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
             # If the dataset points to a database, fetch data from the database
             db_and_table = dataset.file.split(" ,TABLE, ")  # Split to get the database and table name
             with connections[db_and_table[0]].cursor() as cursor:
-                query = "SELECT " + ", ".join(synList) + " FROM " + db_and_table[1]
+                quoted_columns = ['"{}"'.format(col) for col in synList]
+
+                # Create the query string
+                query = "SELECT " + ", ".join(quoted_columns) + " FROM " + db_and_table[1]
                 
                 # Apply 'where' filter if provided
                 if where:
+                    #print(f"The synonyms are {synonyms}")
+                    #print(f"And their standards are {[syn.standard.name for syn in synonyms]}")
                     if df.empty:
-                        samp_name = Synonym.objects.get(dataset=dataset, standard__name=PEDON_ID if PEDON_ID in list(synonyms.values_list("standard__name", flat=True)) else PEDON_NAM).name
+                        samp_name = Synonym.objects.get(dataset=dataset, standard__name=SITE_ID if SITE_ID in list(synonyms.values_list("standard__name", flat=True)) else (SITE_NAM if SITE_ID in list(synonyms.values_list("standard__name", flat=True)) else LAT_LONG_NAME)).name
                         samp_list = list(where.filter(source=dataset.source).values_list("name", flat=True))
                     else:
                         samp_name = Synonym.objects.get(dataset=dataset, standard__name=merge_on).name
                         samp_list = [str(x) if x is not str else "'" + x + "'" for x in unique(df[merge_on])]
+                    #print(f"They'll merge using the variable {samp_name}")
+                    #print(f"While looking for {samp_list}")
                     query = query + " WHERE " + samp_name + " IN ('" + "', '".join(samp_list) + "')"
-
+                print(query)
                 cursor.execute(query)  # Execute the database query
                 # Fetch results from the query and load them into a DataFrame
                 dfNew = pd.DataFrame(cursor.fetchall(), columns=synList)
-
         # Rename the columns based on the standard name for each synonym
         new_column_names = {syn: list(synonyms.filter(name=syn).values_list("standard__name", flat=True))[0] for syn in synList}
+        for syn in synList:
+            stanList = list(synonyms.filter(name=syn).values_list("standard__name", flat=True))
+            if len(stanList) > 1:
+                for stan in stanList:
+                    if stan not in new_column_names.values():
+                        dfNew[stan] = dfNew[syn]
+
         dfNew = dfNew.rename(columns=new_column_names)
 
         # Merge the new DataFrame with the main DataFrame
+        #print(f"{dfNew}")
+        #print("is being merged to")
+        #print(f"{df}")
         if df.empty:
             df = dfNew
         else:

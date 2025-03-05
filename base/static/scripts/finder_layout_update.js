@@ -6,6 +6,15 @@ let place_name = "";
 let popup_holder = "";
 let GRAPH_MODE = "Spline ";
 let URLs = myUrl;
+const area_tolerance = 100000;
+const initial_popup = `<div class="spinner">
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                        </div>
+                        <p>Please wait...</p>`;
 const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     noWrap: true
@@ -136,7 +145,7 @@ function onEachFeature(feature, layer) {
     let feature_name = feature.properties.name;
     if(feature.properties.state){feature_name = feature_name + ", " + feature.properties.state;}
     layer.bindTooltip(feature_name);
-    layer.bindPopup()
+    layer.bindPopup(initial_popup)
 }
 function downloadData(e){
     var site = soilLayerBarChart.options.scales.x.title.text;
@@ -177,6 +186,84 @@ function updateSoilSpline(event){
 
     
 }
+// Create a layer group for the drawing features
+const drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+// Set up the drawing control to allow only rectangle drawing
+const drawControl = new L.Control.Draw({
+    draw: {
+        polygon: false,
+        polyline: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+        rectangle: true, // Enable rectangle drawing
+    },
+    edit: {
+        featureGroup: drawnItems, // Group to manage drawn shapes
+        remove: true // Enable feature removal
+    }
+});
+map.addControl(drawControl);
+
+// Function to calculate the area of the rectangle in square kilometers
+function calculateArea(cc) {
+    console.log(cc);
+    // Create the polygon from the bounding box
+    const polygon = turf.bboxPolygon([cc.NW.lng, cc.NW.lat, cc.SE.lng, cc.SE.lat]);
+
+    // Get the area of the polygon (in square meters)
+    const areaInSqMeters = turf.area(polygon);
+
+    // Convert to square kilometers
+    return areaInSqMeters / 1e6;
+}
+function popup_prep(layer, cc){
+    layer.bindPopup();
+    X_AXIS_DEFAULT_TEXT = "Rectangle";
+    console.log(`${cc.NW.lng}_${cc.NW.lat}_${cc.SE.lng}_${cc.SE.lat}`);
+    layer.bindTooltip(`${cc.NW.lng}_${cc.NW.lat}_${cc.SE.lng}_${cc.SE.lat}`);
+    layer.openPopup();
+}
+
+// Listen for the creation of a rectangle
+map.on('draw:created', function (e) {
+    const layer = e.layer;
+    drawnItems.addLayer(layer);
+    
+    // Get the coordinates of the rectangle
+    const bounds = layer.getBounds();
+    const cornerCoordinates = {
+        "NW": bounds.getNorthWest(),
+        "SE": bounds.getSouthEast()
+    };
+    area = calculateArea(cornerCoordinates);
+    // If the area exceeds the tolerance, show a confirmation
+    if (area > area_tolerance) {
+        // Show the warning message with area details
+        const confirmMessage = `Warning! The area of the rectangle is ${area.toFixed(2)} km², which exceeds the tolerance of ${area_tolerance} km². Do you want to continue?`;
+
+        // Ask the user to confirm if they want to proceed
+        if (confirm(confirmMessage)) {
+            // User clicked 'Yes', proceed with opening the popup
+            popup_prep(layer, cornerCoordinates);
+        } else {
+            // User clicked 'No', remove the rectangle and stop
+            drawnItems.removeLayer(layer);
+        }
+    } else {
+        // If the area is within tolerance, proceed normally
+        popup_prep(layer, cornerCoordinates);
+    }
+    // Open the popup automatically after drawing the rectangle
+    //layer.openPopup();
+
+    // Allow the user to right-click to remove the rectangle
+    layer.on('contextmenu', function () {
+        drawnItems.removeLayer(layer);
+    });
+});
 function graph_builder(){
     url = URLs + `?type=${encodeURIComponent(X_AXIS_DEFAULT_TEXT)}&name=${encodeURIComponent(place_name)}`;
     fetch(url)
@@ -254,8 +341,6 @@ function graph_builder(){
                 label: "Layer " + data.layer_[layer_num],  // Label for the layer
                 backgroundColor: BCOLOR[layer_num % BCOLOR.length]  // Color for the bars
             };
-            console.log(cdd);
-            console.log(data);
             // Update the chart's dataset with the footer values
             for (let i = 0; i < footer_keys_count; i++) {
                 cdd[layer_num][data.footer_keys[i]] = data[data.footer_keys[i]][layer_num];
@@ -277,3 +362,4 @@ function graph_builder(){
         alert("An error occurred while loading the graph.");
     });
 }
+

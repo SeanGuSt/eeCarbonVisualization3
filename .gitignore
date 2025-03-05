@@ -1,8 +1,11 @@
 .venv
 ncss_labdata.sqlite
+ISCN3_layer.sqlite
 db.sqlite3
+s3c_v20040427.mdb
 output_log.txt
 output_log_old.txt
 base/editing notes.txt
+base/testspline.py
 base/static/scripts/geoJSON/counties.geojson
 base/static/scripts/geoJSON/states.geojson

@@ -1,14 +1,24 @@
 .detailedStation-grid-container {
     /*This contains the layout of the app*/
     display: grid;
-    /*This line divides the page into 2 + 1 + 1 = 4 equal parts*/
+    /*This line divides the page into 2 + 1 = 3 equal parts*/
     grid-template-columns: [siteselect-start] 1fr [siteselect-end graph-start] 2fr [graph-end];
 }
-#site_select {
+#selectors {
     grid-column: siteselect;
+    display: grid;
+    grid-template-rows: auto auto auto auto;
+    gap: 0.1vh;
+}
+#pedon_select {
     overflow-y: auto;
-    height: 80vh;
+    height: 70vh;
+}
+#var_select {
+    overflow-y: auto;
+    height: 10vh;
 }
 #graph {
     grid-column: graph;
+    height: 90vh;
 }
