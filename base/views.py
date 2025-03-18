@@ -7,6 +7,7 @@ from django.views import generic
 from .static.scripts.python.other import js, count_changes
 from .models import Site, Pedon, Standard, Synonym, Source, Dataset, fetch_data
 from scipy.interpolate import PchipInterpolator
+from scipy.integrate import quad
 import numpy as np
 import pandas as pd
 import ast
@@ -324,12 +325,9 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
     x_pred = np.arange(default_upper_bound)  # x values to predict (from 0 to default_upper_bound)
     y_pred = np.zeros(default_upper_bound)  # Array to store the predicted y values (initialized to 0)
     denom = np.zeros(default_upper_bound)  # Array to track the number of predictions at each x value
-    cs = PchipInterpolator([0, 1], [0, 1])  # Initialize a cubic spline object (dummy with [0,1] as initial values)
-    
+
     # Fetch pedons matching the name and pedon_id from the GET request parameters
     pedons = Pedon.objects.filter(name=request.GET.get("name"), pedon_id=request.GET.get("id"))
-    print(f"Pedon ID received: {request.GET.get('id')}")
-    print(pedons)
     var = request.GET.get("var")
     
     # Convert the dataframe to ensure PEDON_ID is of type string for correct indexing later
@@ -337,24 +335,9 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
     dfTemp[PEDON_ID] = dfTemp[PEDON_ID].astype(str).str.replace('.0', '', regex=False)
     # Loop through all the pedons (soil samples) returned by the filter query
     for pedon in pedons:
-        # Parse the spline coefficients and x values for the pedon from the database
-        pedonCoeffs = pedon.splineCoeffs
-        cs.x = np.array(pedon.x) # Set the x values of the spline
+        cs = prep_pchip(pedon, var)
+        x_obs, y_obs, xy = prep_observed(cs, dfTemp.loc[dfTemp[PEDON_ID] == pedon.pedon_id, var])
         
-        # Create a new x_obs array based on the cubic spline x values
-        x_obs = np.arange(cs.x.size + 1)  # Generate initial x_obs values
-        for i in range(cs.x.size):
-            x_obs[i+1] = 2 * cs.x[i] - x_obs[i]  # Update x_obs values using a specific formula
-        x_obs = np.delete(x_obs, 1)  # Delete the first element as it's the 1 cm we added
-        
-        # Set the cubic spline coefficients for the current variable
-        cs.c = np.array(pedonCoeffs[var]["c"])  # Assign the coefficients for the spline
-
-        # Get observed y values from the dataframe for the given variable and pedon
-        y_obs = np.array(dfTemp.loc[dfTemp[PEDON_ID] == pedon.pedon_id, var])
-
-        # Create a list of x, y pairs for the current variable
-        xy = [{"x": X, "y": Y} for X, Y in zip([(x_obs[i] + x_obs[i+1]) / 2 for i in range(len(x_obs) - 1)], y_obs)]
         
         # Masking: create a mask for x_pred values that are within the range of x_obs
         mask = np.ones(len(x_pred), dtype=bool)
@@ -382,3 +365,53 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
 
     # Return the JSON response with content type "application/json"
     return HttpResponse(json_stuff, content_type="application/json")
+
+def get_spline_area_average(request: HttpRequest) -> HttpResponse:
+    # Fetch pedons matching the name and pedon_id from the GET request parameters
+    pedons = Pedon.objects.filter(name=request.GET.get("name"), pedon_id=request.GET.get("id"))
+    var = request.GET.get("var")
+
+    # Convert the dataframe to ensure PEDON_ID is of type string for correct indexing later
+    dfTemp = df.astype({PEDON_ID: 'str'})
+    dfTemp[PEDON_ID] = dfTemp[PEDON_ID].astype(str).str.replace('.0', '', regex=False)
+    x_min = float(request.GET.get("x_min"))
+    x_max = float(request.GET.get("x_max"))
+
+    for pedon in pedons:
+        pchip = prep_pchip(pedon, var)
+        area =  quad(pchip, x_min, x_max)#(max_integrate - min_integrate)#/(x_max - x_min)
+        x = np.arange(x_min, x_max+1)
+        y = pchip(x)
+        break
+    
+    superDict = {"area": area, "x" : x.tolist(), "y" : y.tolist()}
+    
+    # Convert the dictionary into JSON format
+    json_stuff = js(superDict)
+
+    # Return the JSON response with content type "application/json"
+    return HttpResponse(json_stuff, content_type="application/json")
+
+
+def prep_observed(pchip: PchipInterpolator, real_y_vals: pd.Series):
+    # Create a new x_obs array based on the cubic spline x values
+    x_obs = np.arange(pchip.x.size + 1)  # Generate initial x_obs values
+    for i in range(pchip.x.size):
+        x_obs[i+1] = 2 * pchip.x[i] - x_obs[i]  # Update x_obs values using a specific formula
+    x_obs = np.delete(x_obs, 1)  # Delete the first element as it's the 1 cm we added
+    
+    # Get observed y values from the dataframe for the given variable and pedon
+    y_obs = np.array(real_y_vals)
+
+    # Create a list of x, y pairs for the current variable
+    xy = [{"x": X, "y": Y} for X, Y in zip([(x_obs[i] + x_obs[i+1]) / 2 for i in range(len(x_obs) - 1)], y_obs)]
+    return x_obs, y_obs, xy
+
+def prep_pchip(pedon: Pedon, var: str) -> PchipInterpolator:
+    pchip = PchipInterpolator([0, 1], [0, 1])  # Initialize a pchip interpolator object (dummy with [0,1] as initial values)
+    # Parse the spline coefficients and x values for the pedon from the database
+    pedonCoeffs = pedon.splineCoeffs
+    pchip.x = np.array(pedon.x) # Set the x values of the spline
+    # Set the cubic spline coefficients for the current variable
+    pchip.c = np.array(pedonCoeffs[var]["c"])  # Assign the coefficients for the spline
+    return pchip

@@ -219,6 +219,7 @@ function calculateArea(cc) {
     // Convert to square kilometers
     return areaInSqMeters / 1e6;
 }
+
 function popup_prep(layer, cc){
     layer.bindPopup();
     X_AXIS_DEFAULT_TEXT = "Rectangle";

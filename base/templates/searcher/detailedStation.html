@@ -11,7 +11,7 @@
         <div class = "detailedStation-grid-container">
             <div id="selectors">
                 <p>Please select a variable:</p>
-                <div id="var_select">
+                <div id="standard_select">
                     {% for standard in standards %}
                         <div class="pedon-option">
                             <input class="stan_radio" type="radio" id="stan_{{standard.name}}" name="stan2avg" value="{{standard.name}}" {% if forloop.first %}checked{% endif %}>
@@ -23,19 +23,28 @@
                 <div id="pedon_select">
                     {% for pedon in pedons %}
                         <div class="pedon-option">
-                            <input class="pedon_radio" type="radio" id="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.source.name}}" name="pedon2avg" value="{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.site_id}}_{{pedon.site.source.name}}">
+                            <input class="pedon_radio" type="radio" id="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.source.name}}" name="pedon2avg" value="{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.site_id}}_{{pedon.site.source.name}}">
                             <label for="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.source.name}}">{{pedon.name}}</label><br>
                         </div>
                     {% endfor %}
+
                 </div>
             </div>
             
             <div id = "graph">
                 <canvas id="soilLayerDataLine"></canvas>
             </div>
+            <div id = "integral_getter">
+                <label for = "integral_lower_bound">Lower: </label>
+                <input type = "number" class = "integral_bounds" id = "integral_lower_bound">
+                <label for = "integral_upper_bound">Upper: </label>
+                <input type = "number" class = "integral_bounds" id = "integral_upper_bound">
+                <div id = "integral_output">Area: 1,000,0000 percent</div>
+            </div>
         </div>
         <script>
             const spUrl = "{% url 'base:ajax_spline_line' %}";
+            const arUrl = "{% url 'base:ajax_spline_area' %}";
         </script>
         <script src = {% static "scripts/graph_handling.js" %}></script>
     </body>

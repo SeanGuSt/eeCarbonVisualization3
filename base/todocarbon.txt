@@ -1,0 +1,7 @@
+new features
+
+download splines as csv
+get integral of pchip to calculate average from x to y cm
+either move spline to endpoints, or make 1 cm endpoint
+remove non-graphable pedons from detailedStation screen
+let user know beforehand how many pedons are graphable per variable

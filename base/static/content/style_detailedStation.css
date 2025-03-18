@@ -2,9 +2,12 @@
     /*This contains the layout of the app*/
     display: grid;
     /*This line divides the page into 2 + 1 = 3 equal parts*/
+    grid-template-rows: [graph-start] 9fr [graph-end integral-start] 1fr [integral-end];
     grid-template-columns: [siteselect-start] 1fr [siteselect-end graph-start] 2fr [graph-end];
+    row-gap: 0;
 }
 #selectors {
+    grid-row: graph-start / integral-end;
     grid-column: siteselect;
     display: grid;
     grid-template-rows: auto auto auto auto;
@@ -14,11 +17,20 @@
     overflow-y: auto;
     height: 70vh;
 }
-#var_select {
+#standard_select {
     overflow-y: auto;
     height: 10vh;
 }
 #graph {
+    grid-row: graph;
     grid-column: graph;
-    height: 90vh;
+    height: 85vh;
+}
+#integral_getter {
+    grid-row: integral;
+    grid-column: graph;
+    display: grid;
+    grid-template-columns: auto auto auto auto auto;
+    gap: 1vh;
+    height: 3vh;
 }

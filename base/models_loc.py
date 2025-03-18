@@ -122,7 +122,11 @@ def siteMaker(mSource: Source):
     site_id_unique = SITE_ID in dfSite.columns
 
     # Iterate through each row of the dataframe
-    for _, site in dfSite.iterrows():
+    for site in dfSite.itertuples():
+        # If more than invalid_sites_tolerance sites have been skipped, break the loop
+        if  invalid_sites_skipped > invalid_sites_tolerance:
+            break
+
         try:
             # Try to extract latitude and longitude values, and convert them to floats
             lat = float(site[LAT])
@@ -130,17 +134,13 @@ def siteMaker(mSource: Source):
 
             # Check if the coordinates are valid (NaN check)
             if lat != lat or long != long:  # This checks for NaN
-                raise Exception()
-        except:
+                raise ValueError()
+        except ValueError:
             # If there's an issue with the coordinates, increment the counter and skip the site
             invalid_sites_skipped += 1
             print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of {lat} and {long}. Omitting from database.")
             continue
 
-        # If more than invalid_sites_tolerance sites have been skipped, break the loop
-        if  invalid_sites_skipped > invalid_sites_tolerance:
-            break
-        
         # Check if the site is on land 
         if globe.is_land(lat, long):
             try:
@@ -151,32 +151,36 @@ def siteMaker(mSource: Source):
                 print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of lat. {lat} and lon. {long}. Omitting from database.")
                 invalid_sites_skipped += 1
                 continue
+        else:
+            print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of lat. {lat} and lon. {long}. Omitting from database.")
+            invalid_sites_skipped += 1
+            continue
             
-            # Create a dictionary to store the site data
-            siteDict = {
-                "name" : site[LAT_LONG_NAME],  # Name of the site
-                "latitude" : lat,  # Latitude of the site
-                "longitude" : long,  # Longitude of the site
-                "source" : mSource,  # Source of the data
-                "state" : state,  # State the site is located in
-                "county" : county,  # County the site is located in
-                "site_id" : site[LAT_LONG_NAME],  # Use the name as the site_id by default
-                "state_id": state_id,  # State ID
-                "county_id" : id  # County ID
-            }
+        # Create a dictionary to store the site data
+        siteDict = {
+            "name" : site[LAT_LONG_NAME],  # Name of the site
+            "latitude" : lat,  # Latitude of the site
+            "longitude" : long,  # Longitude of the site
+            "source" : mSource,  # Source of the data
+            "state" : state,  # State the site is located in
+            "county" : county,  # County the site is located in
+            "site_id" : site[LAT_LONG_NAME],  # Use the name as the site_id by default
+            "state_id": state_id,  # State ID
+            "county_id" : id  # County ID
+        }
 
-            # If the dataframe contains unique site IDs, use the ID from the dataframe
-            if site_id_unique:
-                siteDict["site_id"] = site[SITE_ID]
+        # If the dataframe contains unique site IDs, use the ID from the dataframe
+        if site_id_unique:
+            siteDict["site_id"] = site[SITE_ID]
 
-            # If the source is "KSSL", adjust the name and site ID by removing the last two characters
-            # This is done to avoid using floats for names
-            if mSource.name == "KSSL":
-                siteDict["name"] = str(siteDict["name"])[:-2]
-                siteDict["site_id"] = str(siteDict["site_id"])[:-2]
-            
-            # Call the catchRepeat function to store the site data, avoiding duplicates
-            catchRepeat(Site, siteDict)
+        # If the source is "KSSL", adjust the name and site ID by removing the last two characters
+        # This is done to avoid using floats for names
+        if mSource.name == "KSSL":
+            siteDict["name"] = str(siteDict["name"])[:-2]
+            siteDict["site_id"] = str(siteDict["site_id"])[:-2]
+        
+        # Call the catchRepeat function to store the site data, avoiding duplicates
+        catchRepeat(Site, siteDict)
 
     # Record the time after storing the sites
     t2 = time.time()
@@ -226,9 +230,6 @@ def pedonMaker(mSource: Source):
         
         # Get unique pedon names for this site
         pedons = dfSite[PEDON_NAM].drop_duplicates().to_list()
-        
-        coeffBulk = {}  # Placeholder for bulk coefficients
-        coeffSOC = {}   # Placeholder for SOC coefficients
         
         pedon_id_unique = PEDON_ID in dfSite.columns  # Check if PEDON_ID exists in the dataframe columns
         

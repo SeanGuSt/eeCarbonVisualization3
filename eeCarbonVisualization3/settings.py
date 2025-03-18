@@ -86,6 +86,14 @@ DATABASES = {
     'ISCN3_layer': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'ISCN3_layer.sqlite'
+    },
+    's3c_v20040427': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 's3c_v20040427',
+        'OPTIONS': {
+            'driver': 'Microsoft Access Driver (*.mdb, *.accdb)',
+            'database': str(BASE_DIR / 's3c_v20040427.mdb'),
+        },
     }
 }
 
