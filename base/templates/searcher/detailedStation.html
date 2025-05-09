@@ -4,6 +4,7 @@
     <head>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
         <link rel="stylesheet" href = {% static 'content/style_detailedStation.css' %}>
+        <link rel="stylesheet" href = {% static 'content/style_spinner.css' %}>
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1/turf.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
@@ -21,13 +22,14 @@
                 </div>
                 <p>Please select a pedon:</p>
                 <div id="pedon_select">
-                    {% for pedon in pedons %}
-                        <div class="pedon-option">
-                            <input class="pedon_radio" type="radio" id="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.source.name}}" name="pedon2avg" value="{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.site_id}}_{{pedon.site.source.name}}">
-                            <label for="pedon_{{pedon.name}}_{{pedon.pedon_id}}_{{pedon.site.source.name}}">{{pedon.name}}</label><br>
-                        </div>
-                    {% endfor %}
-
+                    <div class="spinner">
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                        <span class="dot">.</span>
+                    </div>
+                    <p>Please wait...</p>
                 </div>
             </div>
             
@@ -40,11 +42,14 @@
                 <label for = "integral_upper_bound">Upper: </label>
                 <input type = "number" class = "integral_bounds" id = "integral_upper_bound">
                 <div id = "integral_output">Area: 1,000,0000 percent</div>
+                <button id="download" onclick="downloadData(event)">Download</button>
             </div>
         </div>
         <script>
             const spUrl = "{% url 'base:ajax_spline_line' %}";
             const arUrl = "{% url 'base:ajax_spline_area' %}";
+            const pdUrl = "{% url 'base:ajax_pedon_list' %}";
+            const dlUrl = "{% url 'base:ajax_download_spline' %}";
         </script>
         <script src = {% static "scripts/graph_handling.js" %}></script>
     </body>

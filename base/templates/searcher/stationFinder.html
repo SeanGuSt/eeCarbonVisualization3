@@ -7,6 +7,29 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <link rel="stylesheet" href = {% static 'content/style_stationFinder.css' %}>
+        <link rel="stylesheet" href = {% static 'content/style_spinner.css' %}>
+        <style>
+            #csvUpload {
+                position: absolute;
+                top: 35%;
+                left: 11%;
+                z-index: 1000;
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            }
+            #list {
+                position: absolute;
+                top: 42%;
+                left: 11%;
+                z-index: 1000;
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            }
+        </style>
         <script src="https://cdn.jsdelivr.net/npm/@turf/turf@7.1/turf.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@4.0.0/dist/leaflet-search.src.min.css">
@@ -20,6 +43,10 @@
     </head>
     <body>
         <div class="map" id="map" style="position: relative; outline-style: none"></div>
+        <!--
+        <input type="file" id="csvUpload" accept=".csv">
+        <input type="text" id="list">
+        -->
         <script src = {% static "scripts/geoJSON/county.js" %}></script>
         <script src = {% static "scripts/geoJSON/state.js" %}></script>
         <script>
@@ -29,6 +56,7 @@
             const dlUrl = "{% url 'base:ajax_download_layer' %}";
             const spUrl = "{% url 'base:ajax_spline_layer' %}";
             const detUrl = "{% url 'base:detailedStation' %}";
+            var csrftoken = '{{ csrf_token }}';
         </script>
         <script src = {% static "scripts/finder_layout_update.js" %}></script>
     </body>

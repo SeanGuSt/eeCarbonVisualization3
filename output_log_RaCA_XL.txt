@@ -1,0 +1,1143 @@
+Starting to fill the database...Storing RaCA synonyms...
+RaCA_Id is already represented.
+rcasiteid is already represented.
+TOP is already represented.
+BOT is already represented.
+samp is already represented.
+upedon is already represented.
+Bulkdensity is already represented.
+SOC_pred1 is already represented.
+hzname is already represented.
+LU is already represented.
+texture is already represented.
+Gen_long is already represented.
+horizon_designation is already represented.
+Gen_lat is already represented.
+Synonyms stored! Time to store: 0.05 seconds.
+Creating Dataset memory
+True
+False
+False
+True
+False
+False
+False
+False
+False
+False
+False
+False
+False
+False
+Fetching RaCA location data...
+merge on for RaCA0: Site
+List of synonyms: ['Gen_lat', 'Gen_long', 'RaCA_Id']
+df has columns Index([], dtype='object') while dfNew has columns Index(['Site', 'Latitude', 'Longitude'], dtype='object')
+merge on for RaCA1: Site
+List of synonyms: ['rcasiteid']
+Data fetched! Time to fetch: 1.156 seconds.
+Storing RaCA sites...
+C0104F03's coordinates of lat. 46.8 and lon. -124.48 are not on land. Omitting from database.
+C1507C09 is already represented.
+C1508W02's coordinates of lat. 25.26 and lon. -81.23 are not on land. Omitting from database.
+C1408W05's coordinates of lat. 32.05 and lon. -80.1 are not on land. Omitting from database.
+F1408F03's coordinates of lat. 32.21 and lon. -79.9 are not on land. Omitting from database.
+Sites stored! Time to store: 111.995 seconds with 4 sites skipped.
+Calculating RaCA spline coefficients...
+merge on for RaCA0: Site
+List of synonyms: ['RaCA_Id']
+df has columns Index([], dtype='object') while dfNew has columns Index(['Site'], dtype='object')
+merge on for RaCA1: Site
+List of synonyms: ['rcasiteid', 'SOC_pred1', 'upedon', 'BOT', 'TOP', 'samp', 'Bulkdensity']
+df has columns Index(['Site'], dtype='object') while dfNew has columns Index(['Layer', 'Top', 'Bottom', 'Site', 'Bulk Density', 'Soil Organic Carbon',
+       'Pedon'],
+      dtype='object')
+0       C0107F02
+1       C0104F05
+2       C0104F09
+3       C0120P02
+4       C0104F03
+          ...   
+6400    C0606W02
+6401    C0604W05
+6402    C0118F04
+6403    C0114F06
+6404    C1209W05
+Name: Site, Length: 6405, dtype: object
+0         C0101F01
+1         C0101F01
+2         C0101F01
+3         C0101F01
+4         C0101F01
+            ...   
+145122    C1812X01
+145123    C1812X01
+145124    C1812X01
+145125    C1812X01
+145126    C1812X01
+Name: Site, Length: 145127, dtype: object
+Skipping Bulk Density spline coefficients for C0104F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0104F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0209F143. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0209F143. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0209F144. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0209F144. For some unknown reason.
+Skipping C0113C041. The layers should not overlap: [0.0, 5.0, 36.0, 50.0, 36.0, 60.0, 76.0, 100.0]
+Skipping Bulk Density spline coefficients for C0219F051. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219F051. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0219F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0213R012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0213R012. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0213R014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0213R014. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0213R015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0213R015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0213R985. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0213R985. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0217F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0217F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0209F271. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0209F271. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0204F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0204F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0204F053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0204F053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0204F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0204F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0119R023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0119R023. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0119R025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0119R025. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0119F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0119F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0119F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0119F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208R105. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208R105. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215F061. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215F061. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215F063. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215F063. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215F065. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215F065. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0202R025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0202R025. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0211R031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0211R031. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0211R035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0211R035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0209F171. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0209F171. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0405F574. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0405F574. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404P043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404P043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404P044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404P044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404F083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404F083. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0401F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0401F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0219R064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219R064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408P031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408P031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408P034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408P034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408F031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408F031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408F035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408P014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408P014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215R033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215R033. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215R035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215R035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0209R062. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0209R062. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0216R014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0216R014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0409P092. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0409P092. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0103F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0103F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0408F104. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0408F104. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0201R042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0201R042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0201R044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0201R044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0407X012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0407X012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0407X015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0407X015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404W071. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404W071. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404W075. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404W075. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404W011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404W011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404W015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404W015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0412F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0412F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0405F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0405F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0404F051. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0404F051. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0203R043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0203R043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0203R045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0203R045. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0404F025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0404F025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0107P042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0107P042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0411F951. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0411F951. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0406F055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0406F055. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0814F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0814F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0814F014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0814F014. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0814F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0814F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0804R184. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0804R184. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0804R185. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0804R185. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0113R045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0113R045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0310W021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0310W022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0310W023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0310W024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0310W025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0117X024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0117X024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0801W021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0801W024. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0604F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0604F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0117C075. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0117C075. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0404F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0404F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0404F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0404F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0404F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0404F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F024. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0412F025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0412F025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0407F512. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0407F512. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601R012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601R012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0412F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0412F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0412F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0412F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0701R081. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0701R081. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0701R082. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0701R082. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0701R083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0701R083. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0701R084. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0701R084. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0701R085. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0701R085. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601R083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601R083. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601R085. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601R085. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0606F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0606F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0606F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0606F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0803F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0803F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0803F055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0803F055. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601F083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601F083. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601F084. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601F084. For some unknown reason.
+Skipping F0606F021. The layers should not overlap: [0.0, 8.0, 25.0, 78.0, 93.0, 0.0, 3.0]
+Skipping Bulk Density spline coefficients for F0606F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0606F035. For some unknown reason.
+Skipping F0606F043. The layers should not overlap: [3.0, 11.0, 26.0, 0.0, 3.0]
+Skipping Bulk Density spline coefficients for F0608F065. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0608F065. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0813F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0813F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601F104. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601F104. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0608F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0608F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0703R121. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0703R121. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0603F033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0603F033. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0603F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0603F035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0704R131. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0601F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0601F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0603F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0603F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0601F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0601F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0601F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0601F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0601F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0601F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0601F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0601F034. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0601F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0601F074. For some unknown reason.
+Skipping C0701C101. The layers should not overlap: [0.0, 5.0, 15.0, 28.0, 20.0]
+Skipping Bulk Density spline coefficients for C0712F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0712F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0914R133. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0914R133. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0705R041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0705R041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0710R035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0710R035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0911F863. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0911F863. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0504F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0504F034. For some unknown reason.
+Skipping C0706W081. The layers should not overlap: [32.0, 40.0, 46.0, 61.0, 88.0, 0.0, 32.0]
+Skipping Bulk Density spline coefficients for C1008W053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1008W053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1607F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1607F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F421. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F421. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F422. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F422. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F423. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F423. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F424. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F424. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F425. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F425. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F101. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F101. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F551. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F551. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F552. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F552. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F553. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F553. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F554. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F554. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F555. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F555. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1609P052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1609P052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1609P053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1609P053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1609P055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1609P055. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F281. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F281. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F282. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F282. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F283. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F283. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F284. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F284. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F285. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F285. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F571. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F571. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F491. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F491. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F492. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F492. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F493. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F493. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F494. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F494. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611F495. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611F495. For some unknown reason.
+Skipping C1607C043. A layer depth measurement is empty: [0.0, 5.0, 21.0, '', 130.0]
+Skipping Bulk Density spline coefficients for C1007W031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1007W031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1007W033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1007W033. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1611P044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1611P044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1502F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1502F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1502F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1502F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1502F053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1502F053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1801F024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1801F024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1801F202. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1801F202. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1807F171. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1807F171. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1807F172. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1807F172. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1807F173. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1807F173. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1807F174. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1807F174. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1807F175. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1807F175. For some unknown reason.
+Skipping C1501C041. The layers should not overlap: [0.0, 30.0, 76.0, 100.0, 0.0, 30.0, 76.0, 100.0, 130.0]
+Skipping C1501C042. The layers should not overlap: [0.0, 16.0, 36.0, 75.0, 0.0, 16.0, 36.0, 75.0, 100.0]
+Skipping C1501C043. The layers should not overlap: [0.0, 32.0, 86.0, 100.0, 0.0, 32.0, 86.0, 100.0, 120.0]
+Skipping C1501C044. The layers should not overlap: [0.0, 20.0, 38.0, 100.0, 0.0, 20.0, 38.0, 100.0, 120.0]
+Skipping C1501C045. The layers should not overlap: [0.0, 30.0, 49.0, 88.0, 0.0, 30.0, 49.0, 88.0, 100.0]
+Skipping C1507C091. The layers should not overlap: [0.0, 5.0, 30.0, 40.0, 0.0, 5.0, 30.0, 40.0, 100.0]
+Skipping C1507C092. The layers should not overlap: [0.0, 5.0, 35.0, 50.0, 0.0, 5.0, 35.0, 50.0, 100.0]
+Skipping C1507C093. The layers should not overlap: [0.0, 5.0, 30.0, 50.0, 0.0, 5.0, 30.0, 50.0, 100.0]
+Skipping C1507C094. The layers should not overlap: [0.0, 5.0, 30.0, 50.0, 0.0, 5.0, 30.0, 50.0, 100.0]
+Skipping C1507C095. The layers should not overlap: [0.0, 5.0, 30.0, 0.0, 5.0, 30.0, 100.0]
+Skipping Bulk Density spline coefficients for C1805F181. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F181. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F182. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F182. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F183. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F183. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F184. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F184. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F185. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F185. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1812F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1812F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1812F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1812F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1812F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1812F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1812F014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1812F014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1812F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1812F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F203. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F203. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F204. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F204. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1012W071. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1012W071. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1012W072. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1012W072. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1012W073. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1012W073. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1012W074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1012W074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1012W075. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1012W075. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F032. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F032. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F033. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1805F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1805F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1809F995. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F261. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F261. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1808F053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1808F053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408W015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408W015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F621. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F621. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F622. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F622. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F623. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F623. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F061. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F061. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F062. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F062. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1406W041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1406W041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1406W042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1406W042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1406W043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1406W043. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F092. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F092. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F071. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F071. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F072. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F072. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F075. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F075. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F032. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F032. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F812. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F812. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F241. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F241. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F242. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F242. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F243. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F243. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F245. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F245. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F883. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F883. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F631. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F631. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F632. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F632. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F633. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F633. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F634. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F634. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F635. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F635. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F165. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F165. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407F035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F243. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F243. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F245. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F245. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F061. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F061. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F253. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F253. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F254. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F254. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1402W081. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1402W081. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1402W083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1402W083. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F392. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F392. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F393. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F393. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F394. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F394. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F395. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F395. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F131. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F131. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F132. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F132. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F133. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F133. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F134. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F134. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F135. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F135. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F051. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F051. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F055. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F421. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F421. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F422. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F422. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F423. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F423. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F424. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F424. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F254. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F254. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F113. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F113. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F061. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F061. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F063. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F063. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1401F065. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1401F065. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F161. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F161. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F162. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F162. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F301. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F301. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F302. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F302. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F304. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F304. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F601. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F601. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F602. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F602. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F603. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F603. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F604. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F604. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F605. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F605. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1502P014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1502P014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F641. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F641. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F643. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F643. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F644. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F644. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F645. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F645. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F101. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F101. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F102. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F102. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F103. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F103. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F104. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F104. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F105. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F105. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403F014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403F014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1212F081. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1212F081. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1212F084. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1212F084. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F141. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F141. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F142. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F142. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403W021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403W021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403W023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403W023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403W024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403W024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1403W025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1403W025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F191. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F191. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F193. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F193. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F194. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F194. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F195. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F195. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C032. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C032. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C033. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1407C045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1407C045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401C021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401C021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401C022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401C022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401C023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401C023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401C024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401C024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401C025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401C025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1212F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1212F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1212F044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1212F044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1212F135. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1212F135. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F372. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F372. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F333. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F333. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F281. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F281. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F101. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F101. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1201F441. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1201F441. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1201F442. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1201F442. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1201F443. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1201F443. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1201F444. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1201F444. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1201F445. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1201F445. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F175. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F175. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1408F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1408F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W882. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W882. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F464. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F464. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F465. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F465. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F344. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F344. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1315F063. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1315F063. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1315F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1315F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1309F055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1309F055. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1402F071. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1402F071. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1402F072. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1402F072. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1402F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1402F074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408C081. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408C081. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408C083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408C083. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408C084. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408C084. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408C085. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408C085. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F701. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F701. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1315F051. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1315F051. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1315F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1315F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1315F055. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1315F055. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F221. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F221. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F222. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F222. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F223. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F223. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F225. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F225. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1305F141. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1305F141. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F531. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F531. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F533. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F533. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1401F534. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1401F534. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404W102. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404W102. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404W103. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404W103. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1404W104. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1404W104. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F275. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F275. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W931. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W931. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W932. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W932. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W933. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W933. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W934. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W934. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W935. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W935. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W582. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W582. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F121. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F121. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F122. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F122. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F123. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F123. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F124. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F124. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F125. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F125. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F323. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F323. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F601. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F601. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F602. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F602. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F603. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F603. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F604. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F604. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F605. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F605. For some unknown reason.
+Skipping Bulk Density spline coefficients for A1408W891. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for A1408W891. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1304F921. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1304F921. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F711. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F711. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F712. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F712. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F713. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F713. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F714. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F714. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1408F715. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1408F715. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F091. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F091. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F092. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F092. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F093. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F093. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F094. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F094. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1310F095. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1310F095. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1309F071. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1309F071. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1309F072. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1309F072. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F131. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F131. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F132. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F132. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1311F134. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1311F134. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F241. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F241. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F242. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F242. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F243. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F243. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F244. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F244. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F245. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F245. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1304F031. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1304F031. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1304F032. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1304F032. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1304F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1304F034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1304F035. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1304F035. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F821. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F821. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F822. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F822. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F823. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F823. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F824. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F824. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1314F825. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1314F825. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F241. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F241. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F242. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F242. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F244. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F244. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1307F245. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1307F245. For some unknown reason.
+Skipping Bulk Density spline coefficients for F1405F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F1405F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W961. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W961. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W962. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W962. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W684. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W684. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1405W771. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1405W771. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1312W064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1312W064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1204F073. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1204F073. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1204F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1204F074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1205F222. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1205F222. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1207F205. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1207F205. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1202W083. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1202W083. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0105R102. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0105R102. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0105R103. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0105R103. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0105F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0105F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0105F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0105F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0114F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0114F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0114F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0114F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0114F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0114F074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0114F033. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0114F033. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0114F034. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0114F034. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0219R125. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219R125. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F102. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F102. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0308F021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0308F021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0219F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0215F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0215F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0211F051. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0211F051. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0211F053. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0211F053. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F111. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F111. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F112. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F112. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F113. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F113. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F114. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F114. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0208F115. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0208F115. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0120F022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0120F022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0120F023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0120F023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0308F074. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0308F074. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0202F171. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0202F171. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0202F173. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0202F173. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0202F174. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0202F174. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0219F102. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0219F102. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0116F065. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0116F065. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0205R021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0205R021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0205R022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0205R022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0205R023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0205R023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0205R024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0205R024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0205R025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0205R025. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0308F202. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0308F202. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0308F205. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0308F205. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0202F082. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0202F082. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0220F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0220F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0220F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0220F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for F0202F982. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for F0202F982. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0113F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0113F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0112F052. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0112F052. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0116F054. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0116F054. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F981. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F981. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F982. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F982. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F983. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F983. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F984. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F984. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F985. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F985. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904C021. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904C021. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904C022. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904C022. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904C023. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904C023. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904C024. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904C024. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904C025. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904C025. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F061. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F061. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F062. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F062. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F063. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F063. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F064. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F064. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F065. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F065. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F015. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F015. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F922. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F922. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0912F923. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0912F923. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904W011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904W011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904W013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904W013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0904W014. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0904W014. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0906F011. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0906F011. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0906F012. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0906F012. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0906F013. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0906F013. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F041. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F041. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F042. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F042. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F043. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F043. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F044. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F044. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0901F045. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0901F045. For some unknown reason.
+Skipping Bulk Density spline coefficients for C0905F101. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C0905F101. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1104F063. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1104F063. For some unknown reason.
+Skipping Bulk Density spline coefficients for C1205F162. For some unknown reason.
+Skipping Soil Organic Carbon spline coefficients for C1205F162. For some unknown reason.
+Pedons stored! Time to store: 657.46 seconds.
+[32;1mSuccessfully filled the database[0m

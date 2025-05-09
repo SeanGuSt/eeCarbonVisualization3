@@ -1,25 +1,31 @@
-from django.db.models import F
+from django.db.models import F, Q, Count
+from django.db.models.fields.json import KT
 from django.db.models.query import QuerySet
 from django.http import HttpResponse, HttpRequest, JsonResponse
+from django.views.decorators.csrf import requires_csrf_token
 from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
-from .static.scripts.python.other import js, count_changes
+import shapely
+# from django.contrib.gis.geos import GEOSGeometry
+#from django.contrib.gis.db.models.functions import Distance
+#from django.contrib.gis.measure import D
+from .static.scripts.python.other import js, count_changes, json
 from .models import Site, Pedon, Standard, Synonym, Source, Dataset, fetch_data
 from scipy.interpolate import PchipInterpolator
 from scipy.integrate import quad
 import numpy as np
 import pandas as pd
 import ast
-from .constant import PEDON_NAM, SITE_NAM, TOP, BOTTOM, SOC, LAYER_NAM, SITE_ID, PEDON_ID
+from .constant import PEDON_NAM, SITE_NAM, TOP, BOTTOM, SITE_ID, PEDON_ID, SOC, LAT_LONG_NAME, LAT, LONG
 already_loaded = []
+hold_spline_for_download = []
 #footer_keys are the keys to the dictionary superDict
 summary_keys = list(Standard.objects.filter(summary = True).values_list("name", flat = True))
 #footer_values are the values that will go in the tooltips
 summary_values = summary_keys
 df = pd.DataFrame(columns = summary_keys)
 df_xl = pd.DataFrame(columns = summary_keys)
-
 
 #These two are the main pages of the app
 class IndexView(generic.ListView):
@@ -28,6 +34,13 @@ class IndexView(generic.ListView):
     def get_queryset(self) -> dict[str, str]:
         print("Finding geolocations...")
         initial_geocenter = {"lat" : 44.967, "lon" : -106.233}#calculate_centroid(geolocations)#Where the map should be centered
+        # Annotate each county with the count of Sites in that county
+        state_counts = Pedon.objects.values('site__state').annotate(count=Count('site__state')).order_by('site__state')
+        county_counts = Pedon.objects.values('site__county').annotate(count=Count('site__county')).order_by('site__county')
+        # Now, county_counts is a queryset where each item is a dictionary
+        # with 'county' and 'count' (the number of Sites in that county)
+        state_count_dict = {entry['site__state']: entry['count'] for entry in state_counts}
+        county_count_dict = {entry['site__county']: entry['count'] for entry in county_counts}
         return {"initial_geocenter" : js(initial_geocenter)}#, "summary_keys" : js(summary_keys)}
 
 
@@ -45,6 +58,16 @@ class DetailedView(generic.TemplateView):
         # Step 3: Retrieve all Standard objects related to these synonyms
         standards = Standard.objects.filter(id__in=synonyms.values_list('standard__id', flat=True), canSpline = True)
         return {"pedons" : pedons, "standards" : standards}
+    
+
+def get_pedon_for_radio(request: HttpRequest):
+    sites = get_sites_in_place(request)
+    standard = request.GET.get("standard")
+    pedons = Pedon.objects.filter(site__in = sites)
+    pedons = pedons.annotate(get_standard = KT("splineCoeffs__" + standard)).exclude(get_standard = {})
+    superList = {f"pedon_{pedon.name}_{pedon.pedon_id}_{pedon.site.site_id}_{pedon.site.source.name}" : pedon.name for pedon in pedons }
+    json_stuff = js(superList)
+    return HttpResponse(json_stuff, content_type="application/json")
 
 
 def append_data_if_new(reqSites: QuerySet[Site]):
@@ -98,6 +121,7 @@ def append_data_if_new(reqSites: QuerySet[Site]):
             df = pd.concat([df, df_xl[df_xl[SITE_NAM].isin(list(reqSites.values_list("name", flat=True)))]])
         
         # Clean the dataframe by inferring object types and filling missing values with -1.
+        
         df = df.infer_objects(copy=False).fillna(-1)
         if SITE_ID in df.columns:
             if df[SITE_ID].nunique() == 1:
@@ -122,11 +146,16 @@ def get_sites_in_place(request: HttpRequest) -> QuerySet[Site]:
     """
     
     # Extract the 'type' (state, county, or individual station) and 'name' from the request parameters.
-    place_type = request.GET.get("type")
-    place_name = request.GET.get("name")
-
+    if request.method == "GET":
+        request_type = request.GET.get("type")
+        place_name = request.GET.get("name")
+    else:
+        data = json.loads(request.body)
+        request_type = data.get("type")
+        place_name = data.get("name")
+    print(request_type)
     # Match the place type and filter the sites accordingly.
-    match place_type:
+    match request_type:
         case "State":
             # Filter by state name (distinct values to avoid duplicates).
             return Site.objects.filter(state=place_name).distinct()
@@ -136,9 +165,15 @@ def get_sites_in_place(request: HttpRequest) -> QuerySet[Site]:
             county_state = place_name.split(", ")
             return Site.objects.filter(county=county_state[0], state=county_state[1]).distinct()
         
-        case "Rectangle":
-            box_corner = [float(i) for i in place_name.split("_")]
-            return Site.objects.filter(latitude__lte = box_corner[1], latitude__gte = box_corner[3], longitude__lte = box_corner[2], longitude__gte = box_corner[0])
+        case "Shape":
+            polygon = shapely.from_geojson(json.dumps(json.loads(request.body).get("user_drawn_polygon")))
+            site_names = []
+            for site in Site.objects.all():
+                geom = np.array([shapely.Point(site.longitude, site.latitude)])
+                if shapely.contains(polygon, geom)[0]:
+                    site_names.append(site.name)
+            return Site.objects.filter(name__in = site_names)
+            # return Site.objects.filter(location__within = polygon)
         
         case "Individual Site":
             # Extract additional identifiers for individual site filtering.
@@ -146,8 +181,15 @@ def get_sites_in_place(request: HttpRequest) -> QuerySet[Site]:
             site_source = request.GET.get("site_source")
             # Filter by name, site_id, and source name.
             return Site.objects.filter(name=place_name, site_id=site_id, source__name=site_source)
+        
+        case "Request":
+            pedon_ids = json.dumps(json.loads(request.body).get("user_given_pedon_list"))
+            print(pedon_ids)
+            pedons = Site.objects.filter(site_id__in = pedon_ids)
+            return pedons #Site.objects.filter(id__in = sites)
+
     
-    # If place_type does not match any of the above, return an empty queryset.
+    # If request_type does not match any of the above, return an empty queryset.
     return Site.objects.none()
 
 
@@ -207,6 +249,8 @@ def load_layer(request: HttpRequest) -> HttpResponse:
         superDict[key] = prep_data_4_box_js(layers[key].to_list())
     
     # Calculate the layer thickness (difference between BOTTOM and TOP).
+    print(layers[BOTTOM])
+    print(layers[TOP])
     superDict["data"] = prep_data_4_box_js(np.subtract(layers[BOTTOM].to_list(), layers[TOP].to_list()))
     
     # Create a list of layer numbers.
@@ -237,7 +281,25 @@ def download_layer(request: HttpRequest) -> HttpResponse:
     df.to_csv(response, index=False)
     return response
 
+def download_spline(request: HttpRequest) -> HttpResponse:
+    """
+    Generates a CSV file for downloading that contains the soil layer data stored in the global dataframe (`df`).
 
+    Args:
+        request (HttpRequest): The HTTP request that triggers the CSV download.
+
+    Returns:
+        HttpResponse: A CSV file containing the layer data.
+    """
+    x = np.arange(len(hold_spline_for_download))
+    sp_df = pd.DataFrame(data = {"x" : x, "y" : hold_spline_for_download})
+    # Create an HTTP response with a content type for CSV files.
+    response = HttpResponse(content_type='text/csv')
+    # Set the filename for the CSV download.
+    response['Content-Disposition'] = 'attachment; filename="data.csv"'
+    # Write the global dataframe `df` to the response in CSV format (without the index).
+    sp_df.to_csv(response, index=False)
+    return response
 
 def spline(request: HttpRequest) -> HttpResponse:
     """
@@ -283,7 +345,6 @@ def spline(request: HttpRequest) -> HttpResponse:
         return averages
     
     # Calculate the averages for each spline key.
-    print(reqSites)
     pedons = Pedon.objects.filter(site__in=reqSites)
     for var in spline_keys:
         superDict[var] = get_averages(var, pedons)
@@ -305,6 +366,7 @@ def spline(request: HttpRequest) -> HttpResponse:
     
     
 def get_spline_line(request: HttpRequest) -> HttpResponse:
+    global hold_spline_for_download
     """
     This function handles the process of calculating the spline line for a given pedon based on the 
     coefficients stored in the database. It performs cubic spline interpolation for variables associated 
@@ -336,8 +398,8 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
     # Loop through all the pedons (soil samples) returned by the filter query
     for pedon in pedons:
         cs = prep_pchip(pedon, var)
+        print(dfTemp)
         x_obs, y_obs, xy = prep_observed(cs, dfTemp.loc[dfTemp[PEDON_ID] == pedon.pedon_id, var])
-        
         
         # Masking: create a mask for x_pred values that are within the range of x_obs
         mask = np.ones(len(x_pred), dtype=bool)
@@ -356,10 +418,10 @@ def get_spline_line(request: HttpRequest) -> HttpResponse:
         y_pred = y_pred[mask] / denom[mask]  # Normalize the predictions by the number of times predicted
         # Exit the outer loop after processing the first pedon (break after first pedon)
         break
-
+    hold_spline_for_download = y_pred.tolist()
     # Prepare a dictionary with the x and y values for the spline
     superDict = {"x": x_pred.tolist(), "y": y_pred.tolist(), "y0": xy}
-    
+    print(xy)
     # Convert the dictionary into JSON format
     json_stuff = js(superDict)
 
@@ -379,11 +441,11 @@ def get_spline_area_average(request: HttpRequest) -> HttpResponse:
 
     for pedon in pedons:
         pchip = prep_pchip(pedon, var)
-        area =  quad(pchip, x_min, x_max)#(max_integrate - min_integrate)#/(x_max - x_min)
+        area, err =  quad(pchip, x_min, x_max)#(max_integrate - min_integrate)#/(x_max - x_min)
         x = np.arange(x_min, x_max+1)
         y = pchip(x)
         break
-    
+    area /= (x_max - x_min)
     superDict = {"area": area, "x" : x.tolist(), "y" : y.tolist()}
     
     # Convert the dictionary into JSON format
@@ -399,13 +461,15 @@ def prep_observed(pchip: PchipInterpolator, real_y_vals: pd.Series):
     for i in range(pchip.x.size):
         x_obs[i+1] = 2 * pchip.x[i] - x_obs[i]  # Update x_obs values using a specific formula
     x_obs = np.delete(x_obs, 1)  # Delete the first element as it's the 1 cm we added
-    
     # Get observed y values from the dataframe for the given variable and pedon
     y_obs = np.array(real_y_vals)
-
     # Create a list of x, y pairs for the current variable
     xy = [{"x": X, "y": Y} for X, Y in zip([(x_obs[i] + x_obs[i+1]) / 2 for i in range(len(x_obs) - 1)], y_obs)]
+    print(x_obs)
+    print(y_obs)
+    print(xy)
     return x_obs, y_obs, xy
+
 
 def prep_pchip(pedon: Pedon, var: str) -> PchipInterpolator:
     pchip = PchipInterpolator([0, 1], [0, 1])  # Initialize a pchip interpolator object (dummy with [0,1] as initial values)

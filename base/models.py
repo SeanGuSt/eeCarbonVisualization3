@@ -2,11 +2,15 @@ from django.db.models import Model, CharField, BooleanField, ForeignKey, ManyToM
 from django.db import connections
 from django.db.models.query import QuerySet
 from django.contrib.auth.models import User
+# from django.contrib.gis.db import models as gis_models
 from django.apps import apps
 import requests
 from io import StringIO
+import numpy as np
+import pyodbc
 from.constant import PEDON_NAM, PEDON_ID, SITE_NAM, SITE_ID, LAT_LONG_NAME
 from.static.scripts.python.other import intersection, unique
+from eeCarbonVisualization3.settings import BASE_DIR
 import pandas as pd
 MAX_DELIM_LENGTH = 1
 MAX_STR_LENGTH = 255
@@ -14,6 +18,7 @@ MAX_STR_LENGTH = 255
 class Source(Model):
     name = CharField(max_length=MAX_STR_LENGTH, unique=True)
     type = CharField(max_length=MAX_STR_LENGTH, default = "SQL")
+    # please_visit = URLField(max_length=MAX_STR_LENGTH, default = "")
     def __str__(self):
         return self.name
     
@@ -34,6 +39,7 @@ class Dataset(Model):
     hasSoil = BooleanField(default = False)#Soil data
     hasTime = BooleanField(default = False)#Temporal data
     source = ForeignKey(Source, on_delete = CASCADE)#Source of Dataset
+    merge_on = ForeignKey(Standard, on_delete = CASCADE)
     file = URLField(max_length=MAX_STR_LENGTH, default = "")#Set as empty if this is a Database
     delimiter = CharField(max_length=MAX_DELIM_LENGTH, default = ",")#Set as empty if this is a Database
     def __str__(self):
@@ -52,6 +58,7 @@ class Synonym(Model):
 class Site(Model):
     name = CharField(default = "", max_length=MAX_STR_LENGTH)
     site_id = CharField(default = "", max_length=MAX_STR_LENGTH)
+    # location = gis_models.PointField() 
     latitude = FloatField(default = 0)
     longitude = FloatField(default = 0)
     county = CharField(default = "", max_length=MAX_STR_LENGTH)
@@ -106,13 +113,14 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
         raise Exception("include and exclude must be disjoint.")
 
     datasets = Dataset.objects.filter(source=source)  # Filter datasets by the source
-    df = pd.DataFrame()  # Initialize an empty DataFrame
+    df = pd.DataFrame(columns = need)  # Initialize an empty DataFrame
     suffix = "_x"  # Suffix for columns to distinguish duplicates during merges
     
     # Loop through each dataset related to the source
     for dataset in datasets:
         synonyms = Synonym.objects.filter(dataset=dataset)  # Get synonyms related to this dataset
-        merge_on = dataset.synonym_set.all().order_by('id').first().standard.name  # Select the standard variable for merging
+        merge_on = dataset.merge_on.name  # Select the standard variable for merging
+        print(f"merge on for {dataset.name}: {merge_on}")
         synList = unique(synonyms.values_list("name", flat=True))  # Create a list of unique synonyms
         # Ensure the 'need' columns are present in the synonyms list
         if not have_all_needed(need, synonyms, synList):
@@ -121,7 +129,7 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
         synList = only_include(include, synonyms, synList)
         # Remove synonyms from 'exclude' list from the synonyms list
         synList = remove_exclude(exclude, synonyms, synList)
-
+        print(f"List of synonyms: {synList}")
         # Skip datasets with insufficient columns
         if (len(synList) < 2 and not df.empty) or len(synList) == 0:
             continue
@@ -133,14 +141,18 @@ def fetch_data(source: Source, include: list = [], exclude: list = [], need: lis
             dfNew = fetch_data_using_SQL(dataset, df, synonyms, synList, where, merge_on)
 
         dfNew = rename_columns_Synonym_to_Standard(dfNew, synonyms, synList)    
+        print(f"df has columns {df.columns} while dfNew has columns {dfNew.columns}")
         # Merge the new DataFrame with the main DataFrame
         if df.empty:
             df = dfNew
-            if source.name == "RaCA":
-                df = df.rename(columns = {LAT_LONG_NAME : SITE_NAM})
+            #if source.name == "RaCA": df = df.rename(columns = {LAT_LONG_NAME : SITE_NAM})#Comment out this line when refilling RaCA
         else:
+            df[merge_on] = df[merge_on].astype(str)
+            print(df[merge_on])
+            dfNew[merge_on] = dfNew[merge_on].astype(str)
+            print(dfNew[merge_on])
             df = df.merge(dfNew, on=merge_on, suffixes=[suffix, None])
-
+        #print(f'And now, df is {df}')
     # Call the function to combine like columns before returning the final DataFrame
     return combine_like_columns(df, suffix)
 
@@ -174,19 +186,18 @@ def fetch_data_by_download(dataset: Dataset, synList: list) -> pd.DataFrame:
 
     
 def fetch_data_using_SQL(dataset: Dataset, df: pd.DataFrame, synonyms: QuerySet[Synonym], synList: list, where: QuerySet, merge_on: str) -> pd.DataFrame:
-    db_and_table = dataset.file.split(" ,TABLE, ")  # Split to get the database and table name
-    with connections[db_and_table[0]].cursor() as cursor:
+    def fetch_data_using_SQL_cursor(cursor):
         quoted_columns = ['"{}"'.format(col) for col in synList]
 
         # Create the query string
         query = "SELECT " + ", ".join(quoted_columns) + " FROM " + db_and_table[1]
-        
+        print(f"{dataset.source.name}, {quoted_columns}")
         # Apply 'where' filter if provided
         if where:
             #print(f"The synonyms are {synonyms}")
             #print(f"And their standards are {[syn.standard.name for syn in synonyms]}")
             if df.empty:
-                samp_name = Synonym.objects.get(dataset=dataset, standard__name=SITE_ID if SITE_ID in list(synonyms.values_list("standard__name", flat=True)) else (SITE_NAM if SITE_ID in list(synonyms.values_list("standard__name", flat=True)) else LAT_LONG_NAME)).name
+                samp_name = Synonym.objects.get(dataset=dataset, standard__name=SITE_ID if SITE_ID in list(synonyms.values_list("standard__name", flat=True)) else SITE_NAM).name
                 samp_list = list(where.filter(source=dataset.source).values_list("name", flat=True))
             else:
                 samp_name = Synonym.objects.get(dataset=dataset, standard__name=merge_on).name
@@ -196,8 +207,25 @@ def fetch_data_using_SQL(dataset: Dataset, df: pd.DataFrame, synonyms: QuerySet[
             query = query + " WHERE " + samp_name + " IN ('" + "', '".join(samp_list) + "')"
         cursor.execute(query)  # Execute the database query
         # Fetch results from the query and load them into a DataFrame
-        dfNew = pd.DataFrame(cursor.fetchall(), columns=synList)
+        x = cursor.fetchall()
+        dfNew = pd.DataFrame(np.asarray(x), columns=synList)
         return dfNew
+    
+    db_and_table = dataset.file.split(" ,TABLE, ")  # Split to get the database and table name
+    if dataset.source.type == "ACCESS":
+        print( r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + db_and_table[0] + ';')
+        conn = pyodbc.connect(
+                 r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' + str(BASE_DIR) + '/' + db_and_table[0] + ';'
+                )
+        cur = conn.cursor()
+        dfNew = fetch_data_using_SQL_cursor(cur)
+        cur.close()
+        conn.close()
+    else:
+        with connections[db_and_table[0]].cursor() as cursor:
+            dfNew = fetch_data_using_SQL_cursor(cursor)
+    print(dfNew.shape)
+    return dfNew
     
 def rename_columns_Synonym_to_Standard(dfNew: pd.DataFrame, synonyms: QuerySet[Synonym], synList: list) -> pd.DataFrame:
     # Rename the columns based on the standard name for each synonym
@@ -211,7 +239,6 @@ def rename_columns_Synonym_to_Standard(dfNew: pd.DataFrame, synonyms: QuerySet[S
 
     dfNew = dfNew.rename(columns=new_column_names)
     return dfNew
-
 
 # Function to combine like columns (those with similar names but different suffixes)
 def combine_like_columns(df: pd.DataFrame, suffix: str) -> pd.DataFrame:

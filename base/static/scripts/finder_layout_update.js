@@ -1,11 +1,14 @@
 //IMPORTANT: init_geo, myUrl, dlUrl, spUrl, and detUrl come from stationFinder.html
-//Placeholder constants
+/* Variables */
+/* Placeholder constants */
 const BCOLOR = ["black", "pink", "orange", "blue", "green", "yellow"];//List of colors for the layers of the bar graph
 let X_AXIS_DEFAULT_TEXT = "State";
 let place_name = "";
 let popup_holder = "";
 let GRAPH_MODE = "Spline ";
 let URLs = myUrl;
+let polygon, pedon_list;
+const list_element = document.getElementById("list");
 const area_tolerance = 100000;
 const initial_popup = `<div class="spinner">
                             <span class="dot">.</span>
@@ -33,11 +36,6 @@ const overlay = {
     "County" : countyGeo
 };
 var soilLayerBarChart = null;//Initial chart curve.
-map.on('popupopen', function(e) {
-    place_name = e.popup._source._tooltip._content;
-    popup_holder = e.popup._source;
-    graph_builder();
-});
 const layerControl = L.control.layers(overlay, {}).addTo(map);
 var searchControl = new L.Control.Search({
     layer: stateGeo,
@@ -49,21 +47,6 @@ var searchControl = new L.Control.Search({
           map.setView(latlng, zoom); // access the zoom
     }
 });
-map.on("baselayerchange", function(event){
-    searchControl.collapse();
-    map.closePopup();
-    X_AXIS_DEFAULT_TEXT = event.name;
-    searchControl.setLayer(overlay[event.name]);
-});
-searchControl.on('search:locationfound', function(e) {
-    e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
-    if(e.layer._popup)
-        e.layer.openPopup();
-
-}).on('search:collapsed', function(e) {
-    stateGeo.resetStyle(e.layer);
-});
-map.addControl( searchControl );  //inizialize search control 
 const defaultScalesMap = {
     x: {
         type: "category",
@@ -147,6 +130,11 @@ function onEachFeature(feature, layer) {
     layer.bindTooltip(feature_name);
     layer.bindPopup(initial_popup)
 }
+function get_pedons_from_list(){
+    X_AXIS_DEFAULT_TEXT = "Request";
+    pedon_list = list_element.value.replace(", ", ",").split(",");//Set this up so any number of spaces between a comma and the next character is tolerated
+    graph_builder();
+}
 function downloadData(e){
     var site = soilLayerBarChart.options.scales.x.title.text;
     $.ajax({                       // initialize an AJAX request
@@ -193,7 +181,7 @@ map.addLayer(drawnItems);
 // Set up the drawing control to allow only rectangle drawing
 const drawControl = new L.Control.Draw({
     draw: {
-        polygon: false,
+        polygon: true, // Enable line drawing
         polyline: false,
         circle: false,
         marker: false,
@@ -205,69 +193,38 @@ const drawControl = new L.Control.Draw({
         remove: true // Enable feature removal
     }
 });
-map.addControl(drawControl);
+
 
 // Function to calculate the area of the rectangle in square kilometers
 function calculateArea(cc) {
-    console.log(cc);
     // Create the polygon from the bounding box
-    const polygon = turf.bboxPolygon([cc.NW.lng, cc.NW.lat, cc.SE.lng, cc.SE.lat]);
+    //const polygon = turf.bboxPolygon([cc.NW.lng, cc.NW.lat, cc.SE.lng, cc.SE.lat]);
 
     // Get the area of the polygon (in square meters)
-    const areaInSqMeters = turf.area(polygon);
+    const areaInSqMeters = turf.area(cc);
 
     // Convert to square kilometers
     return areaInSqMeters / 1e6;
 }
 
-function popup_prep(layer, cc){
+function popup_prep(layer, drawnGeoJSON){
     layer.bindPopup();
-    X_AXIS_DEFAULT_TEXT = "Rectangle";
-    console.log(`${cc.NW.lng}_${cc.NW.lat}_${cc.SE.lng}_${cc.SE.lat}`);
-    layer.bindTooltip(`${cc.NW.lng}_${cc.NW.lat}_${cc.SE.lng}_${cc.SE.lat}`);
+    X_AXIS_DEFAULT_TEXT = "Shape";
+    polygon = drawnGeoJSON;
+    //console.log(`${cc.NW.lng}_${cc.NW.lat}_${cc.SE.lng}_${cc.SE.lat}`);
+    layer.bindTooltip(`Shape`);
     layer.openPopup();
 }
-
-// Listen for the creation of a rectangle
-map.on('draw:created', function (e) {
-    const layer = e.layer;
-    drawnItems.addLayer(layer);
-    
-    // Get the coordinates of the rectangle
-    const bounds = layer.getBounds();
-    const cornerCoordinates = {
-        "NW": bounds.getNorthWest(),
-        "SE": bounds.getSouthEast()
-    };
-    area = calculateArea(cornerCoordinates);
-    // If the area exceeds the tolerance, show a confirmation
-    if (area > area_tolerance) {
-        // Show the warning message with area details
-        const confirmMessage = `Warning! The area of the rectangle is ${area.toFixed(2)} km², which exceeds the tolerance of ${area_tolerance} km². Do you want to continue?`;
-
-        // Ask the user to confirm if they want to proceed
-        if (confirm(confirmMessage)) {
-            // User clicked 'Yes', proceed with opening the popup
-            popup_prep(layer, cornerCoordinates);
-        } else {
-            // User clicked 'No', remove the rectangle and stop
-            drawnItems.removeLayer(layer);
-        }
-    } else {
-        // If the area is within tolerance, proceed normally
-        popup_prep(layer, cornerCoordinates);
-    }
-    // Open the popup automatically after drawing the rectangle
-    //layer.openPopup();
-
-    // Allow the user to right-click to remove the rectangle
-    layer.on('contextmenu', function () {
-        drawnItems.removeLayer(layer);
-    });
-});
 function graph_builder(){
-    url = URLs + `?type=${encodeURIComponent(X_AXIS_DEFAULT_TEXT)}&name=${encodeURIComponent(place_name)}`;
-    fetch(url)
+    data = {"type" : X_AXIS_DEFAULT_TEXT, "name" : place_name, "user_drawn_polygon" : polygon, "user_given_pedon_list" : pedon_list};
+    fetch(URLs, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            "X-CSRFToken": csrftoken
+        },
+        body: JSON.stringify(data)
+    })
     .then(response => response.json())
     .then(data => {
         // Check if there's any data to display, otherwise show a popup with a message
@@ -363,4 +320,85 @@ function graph_builder(){
         alert("An error occurred while loading the graph.");
     });
 }
+map.addControl(drawControl);
+map.addControl(searchControl);  //inizialize search control
+map.on("baselayerchange", function(event){
+    searchControl.collapse();
+    map.closePopup();
+    X_AXIS_DEFAULT_TEXT = event.name;
+    searchControl.setLayer(overlay[event.name]);
+});
+// Listen for the creation of a rectangle
+map.on('draw:created', function (e) {
+    const layer = e.layer;
+    drawnItems.addLayer(layer);
+    console.log(drawnItems);
+    console.log(typeof(drawnItems));
+    drawnGeoJSON = drawnItems.toGeoJSON();
+    console.log("I should only show up when a rectangle is drawn")
+    area = calculateArea(drawnGeoJSON);
+    // If the area exceeds the tolerance, show a confirmation
+    if (area > area_tolerance) {
+        // Show the warning message with area details
+        const confirmMessage = `Warning! The area of the shape is ${area.toFixed(2)} km², which exceeds the tolerance of ${area_tolerance} km². We can still show you results, but they may take a long time to load. Do you want to continue?`;
 
+        // Ask the user to confirm if they want to proceed
+        if (confirm(confirmMessage)) {
+            // User clicked 'Yes', proceed with opening the popup
+            popup_prep(layer, drawnGeoJSON);
+        } else {
+            // User clicked 'No', remove the rectangle and stop
+            drawnItems.removeLayer(layer);
+        }
+    } else {
+        // If the area is within tolerance, proceed normally
+        popup_prep(layer, drawnGeoJSON);
+    }
+    // Open the popup automatically after drawing the rectangle
+    //layer.openPopup();
+
+    // Allow the user to right-click to remove the rectangle
+    layer.on('contextmenu', function () {
+        drawnItems.removeLayer(layer);
+    });
+});
+map.on('popupopen', function(e) {
+    place_name = e.popup._source._tooltip._content;
+    popup_holder = e.popup._source;
+    graph_builder();
+});
+searchControl.on('search:locationfound', function(e) {
+    e.layer.setStyle({fillColor: '#3f0', color: '#0f0'});
+    if(e.layer._popup)
+        e.layer.openPopup();
+
+}).on('search:collapsed', function(e) {
+    stateGeo.resetStyle(e.layer);
+});
+
+list_element.addEventListener('keydown', function(event){
+    if(event.key == "Enter"){
+        get_pedons_from_list();
+    }
+})
+// CSV Upload Functionality
+document.getElementById('csvUpload').addEventListener('change', function(event) {
+    const file = event.target.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const csvData = e.target.result;
+        const itemsArray = csvData.trim().split(','); // Split by comma to create array
+        console.log(itemsArray); // The array with the items from the CSV
+        list_element.value = itemsArray;
+        get_pedons_from_list();
+      };
+
+      reader.readAsText(file); // Read the file as text
+      
+    } else {
+      console.log("No file selected.");
+    }
+  });

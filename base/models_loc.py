@@ -1,6 +1,7 @@
 
 from django.db.utils import IntegrityError
 from django.conf import settings
+# from django.contrib.gis.geos import Point
 import warnings, time, os, geopandas, shapely
 from .models import Source, Site, Standard, Dataset, Synonym, Model, Pedon, fetch_data
 from global_land_mask import globe
@@ -8,7 +9,7 @@ import pandas as pd
 import numpy as np
 from scipy.interpolate import PchipInterpolator
 from django.http import HttpResponse, HttpRequest
-from .constant import DATABASE, DATASET_TYPE, SITE_ID, PEDON_ID, URL, LAT, LONG, LAT_LONG_NAME, SITE_NAM, TOP, BOTTOM, PEDON_NAM, LAYER_NAM
+from .constant import DATABASE, DATASET_TYPE, SITE_ID, PEDON_ID, URL, LAT, LONG, STATE, COUNTY, SITE_NAM, TOP, BOTTOM, PEDON_NAM, LAYER_NAM
 filepath = os.path.join(settings.BASE_DIR, "base\SynonymBook.xlsx")
 df_syn = pd.read_excel(filepath).sort_values(by = "Merger", ascending = False)
 df_std = pd.read_excel(filepath, sheet_name="Glossary")
@@ -50,7 +51,7 @@ def standardMaker():
 def sourceMaker(Dict: dict[str, str]) -> tuple[Model | bool, pd.Series, pd.Series, pd.Series]:
     mSource = catchRepeat(Source, Dict)
     keys = df_syn.loc[df_syn[DATABASE] == mSource.name].dropna(axis=1)
-    return mSource, keys["Standard"], keys["Synonym"], keys["Table"]
+    return mSource, keys["Standard"], keys["Synonym"], keys["Table"], keys["Merger"]
 
 
 def synMaker(mSource: Source, standards: pd.Series, synonyms: pd.Series):
@@ -65,22 +66,27 @@ def synMaker(mSource: Source, standards: pd.Series, synonyms: pd.Series):
         print(f'Synonyms stored! Time to store: {round(t1 - t0, 3)} seconds.')
 
 
-def datasetMaker(mSource: Source, standards: pd.Series, synonyms: pd.Series, tables: pd.Series):
+def datasetMaker(mSource: Source, standards: pd.Series, synonyms: pd.Series, tables: pd.Series, mergers: pd.Series):
     print("Creating Dataset memory")
     for _, row in df_seg.loc[df_seg[DATABASE] == mSource.name].iterrows():
         dtstDict = {
             "name" : row["Name"],
             "source" : mSource,
+            "merge_on" : Standard.objects.first(),
             "file" : row[URL],
             "delimiter" : row["Delimiter"]
         }
         dtst = catchRepeat(Dataset, dtstDict)
-        for synonym_name, std, tbl in zip(synonyms, standards, tables):
+        for synonym_name, std, tbl, used_2_merge in zip(synonyms, standards, tables, mergers):
             if tbl != row["Name"]:
                 continue
             #Get each of the Synonyms found in this file and associate them with this Dataset
             standard = Standard.objects.get(name = std)
             Synonym.objects.get(name = synonym_name, standard = standard).dataset.add(dtst)
+            print(bool(used_2_merge))
+            if bool(used_2_merge): 
+                dtst.merge_on = standard
+                dtst.save()
 
 
 def siteMaker(mSource: Source):
@@ -100,7 +106,7 @@ def siteMaker(mSource: Source):
     t0 = time.time()
 
     # Fetch location data from the provided source, including latitude, longitude, site ID, etc.
-    df = fetch_data(mSource, [LAT, LONG, LAT_LONG_NAME, SITE_ID, SITE_NAM])
+    df = fetch_data(mSource, include = [LAT, LONG, SITE_ID, SITE_NAM, STATE, COUNTY])
 
     # Remove duplicate rows from the dataframe (if any)
     dfSite = df.drop_duplicates()
@@ -118,15 +124,13 @@ def siteMaker(mSource: Source):
     invalid_sites_skipped = 0
     invalid_sites_tolerance = 100000
 
-    # Check if the "site_id" column exists in the dataframe
-    site_id_unique = SITE_ID in dfSite.columns
-
     # Iterate through each row of the dataframe
-    for site in dfSite.itertuples():
+    for _, site in dfSite.iterrows():
         # If more than invalid_sites_tolerance sites have been skipped, break the loop
         if  invalid_sites_skipped > invalid_sites_tolerance:
             break
-
+        
+        site = fill_in_redundancy(site, SITE_NAM, SITE_ID)
         try:
             # Try to extract latitude and longitude values, and convert them to floats
             lat = float(site[LAT])
@@ -138,44 +142,52 @@ def siteMaker(mSource: Source):
         except ValueError:
             # If there's an issue with the coordinates, increment the counter and skip the site
             invalid_sites_skipped += 1
-            print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of {lat} and {long}. Omitting from database.")
+            print(f"{site[SITE_NAM]}'s coordinates of lat. {lat} and lon. {long} are NaN. Omitting from database.")
             continue
+        except TypeError:
+            if site[LAT] is None or site[LAT] is None:
+                invalid_sites_skipped += 1
+                print(f"{site[SITE_NAM]}'s coordinates of lat. {site[LAT]} and lon. {site[LONG]} are NoneType. Omitting from database.")
+                continue
+            else:
+                raise TypeError
 
         # Check if the site is on land 
-        if globe.is_land(lat, long):
+        if STATE in site.index and COUNTY in site.index:
+            state = site[STATE]
+            county = site[COUNTY]
+            state_id = ""
+            id = ""
+        elif globe.is_land(lat, long):
             try:
                 # Try to find the state and county information based on the coordinates
                 state, county, state_id, id = findPointInPolygon(lat, long)
             except shapely.errors.GEOSException:
                 # If there's an error with the geospatial query, skip this site
-                print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of lat. {lat} and lon. {long}. Omitting from database.")
+                print(f"{site[SITE_NAM]}'s coordinates of lat. {lat} and lon. {long} are disliked by shapely. Omitting from database.")
                 invalid_sites_skipped += 1
                 continue
         else:
-            print(f"Something is wrong with {site[LAT_LONG_NAME]}'s coordinates of lat. {lat} and lon. {long}. Omitting from database.")
+            print(f"{site[SITE_NAM]}'s coordinates of lat. {lat} and lon. {long} are not on land. Omitting from database.")
             invalid_sites_skipped += 1
             continue
             
         # Create a dictionary to store the site data
         siteDict = {
-            "name" : site[LAT_LONG_NAME],  # Name of the site
+            "name" : site[SITE_NAM],  # Name of the site
             "latitude" : lat,  # Latitude of the site
             "longitude" : long,  # Longitude of the site
             "source" : mSource,  # Source of the data
             "state" : state,  # State the site is located in
             "county" : county,  # County the site is located in
-            "site_id" : site[LAT_LONG_NAME],  # Use the name as the site_id by default
+            "site_id" : site[SITE_ID],  # Use the name as the site_id by default
             "state_id": state_id,  # State ID
             "county_id" : id  # County ID
         }
 
-        # If the dataframe contains unique site IDs, use the ID from the dataframe
-        if site_id_unique:
-            siteDict["site_id"] = site[SITE_ID]
-
         # If the source is "KSSL", adjust the name and site ID by removing the last two characters
         # This is done to avoid using floats for names
-        if mSource.name == "KSSL":
+        if mSource.name == "KSSL" and siteDict["name"] is float:
             siteDict["name"] = str(siteDict["name"])[:-2]
             siteDict["site_id"] = str(siteDict["site_id"])[:-2]
         
@@ -200,7 +212,6 @@ def pedonMaker(mSource: Source):
     for dataset in datasets:
         merge_on = dataset.synonym_set.all().filter(standard__canSpline = True)
         var_names.extend(list(set(merge_on.values_list("standard__name", flat = True))))
-    print(var_names)
     standard_names = [SITE_NAM, SITE_ID, PEDON_ID, PEDON_NAM, LAYER_NAM, TOP, BOTTOM]
     standard_names.extend(var_names)
     df = fetch_data(mSource, standard_names)  # Returns a pandas dataframe
@@ -258,7 +269,7 @@ def pedonMaker(mSource: Source):
             points.append(dfLayers[BOTTOM].iloc[-1])
 
             # Skip if any depth is missing or overlaps
-            if "" in points:
+            if "" in points or None in points:
                 print(f"Skipping {pedon}. A layer depth measurement is empty: {points}")
             elif any([points[i] > points[i + 1] for i in range(len(points) - 1)]):
                 print(f"Skipping {pedon}. The layers should not overlap: {points}")
@@ -268,7 +279,8 @@ def pedonMaker(mSource: Source):
                     points.insert(1, 1)  # Insert a 1 cm layer at start to ensure the surface data isn't exaggerated
                     if points[-1] == points[-2]:
                         points[-1] += 10  # Ensure the last two points are distinct
-                    x = np.array([(points[i] + points[i+1])/2 for i in range(len(points) - 1)])  # Midpoint for interpolation
+                    # x = np.array([(points[i] + points[i+1])/2 for i in range(len(points) - 1)])  # Midpoint for interpolation
+                    x = np.array([points[i+1] for i in range(len(points) - 1)])  # Endpoint for interpolation
                     if np.any(np.isnan(x)):
                         continue
                     pedonDict["x"] = x.tolist()
@@ -302,7 +314,6 @@ def pedonMaker(mSource: Source):
     t1 = time.time()
     print(f'Pedons stored! Time to store: {round(t1-t0, 3)} seconds.')
 
-    
 
 def findPointInPolygon(lat: float, long: float) -> tuple[str, str, str, str]:
     geom = np.array([shapely.Point(long, lat)])#Format the latitude and longitude as done in geojson.
@@ -323,8 +334,15 @@ def maker_reset():
     
 def maker(Dict: dict):
     Source.objects.filter(name = Dict["name"]).delete()
-    mSource, standards, synonyms, tables = sourceMaker(Dict)
+    mSource, standards, synonyms, tables, mergers = sourceMaker(Dict)
     synMaker(mSource, standards, synonyms)
-    datasetMaker(mSource, standards, synonyms, tables)
+    datasetMaker(mSource, standards, synonyms, tables, mergers)
     siteMaker(mSource)
     pedonMaker(mSource)
+
+def fill_in_redundancy(df: pd.Series, col_a: str, col_b: str):
+    if col_a not in df.index and col_b in df.index:
+            df[col_a] = df[col_b]
+    elif col_b not in df.index and col_a in df.index:
+        df[col_b] = df[col_a]
+    return df
